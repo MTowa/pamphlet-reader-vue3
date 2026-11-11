@@ -1,0 +1,61 @@
+{
+  "name": "@your-org/vue-flipbook",
+  "version": "0.1.0",
+  "description": "An SSR-safe Vue 3 PDF flipbook with lazy canvas rendering and automatic PDF.js workers.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "peerDependencies": {
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "page-flip": "2.0.7",
+    "pdfjs-dist": "5.7.284"
+  },
+  "scripts": {
+    "build": "vue-tsc --noEmit -p tsconfig.json && vite build --logLevel warn && node ../../scripts/package-notices.mjs",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "prepack": "pnpm build"
+  },
+  "license": "MIT",
+  "author": "MTowa",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MTowa/pamphlet-reader-vue3.git",
+    "directory": "packages/vue-flipbook"
+  },
+  "bugs": {
+    "url": "https://github.com/MTowa/pamphlet-reader-vue3/issues"
+  },
+  "homepage": "https://github.com/MTowa/pamphlet-reader-vue3#readme",
+  "keywords": [
+    "vue",
+    "vue3",
+    "pdf",
+    "flipbook",
+    "nuxt",
+    "pamphlet",
+    "pdfjs"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

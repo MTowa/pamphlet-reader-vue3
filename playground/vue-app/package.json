@@ -1,0 +1,15 @@
+{
+  "name": "flipbook-vue-playground",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "typecheck": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@your-org/vue-flipbook": "workspace:*",
+    "vue": "3.5.45"
+  }
+}

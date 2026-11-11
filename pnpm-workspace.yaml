@@ -1,0 +1,17 @@
+packages:
+  - packages/*
+  - playground/*
+
+# Installation is explicit; running a build must not mutate node_modules.
+verifyDepsBeforeRun: false
+
+allowBuilds:
+  esbuild: true
+  vue-demi: true
+  unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - vite@8.3.8
+
+patchedDependencies:
+  page-flip@2.0.7: patches/page-flip@2.0.7.patch
