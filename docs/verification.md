@@ -19,6 +19,8 @@ The package verifier builds a tgz, checks its exported files, installs it into n
 
 The run writes per-command logs, the tarball's SHA-256 and consumer directory paths to .artifacts/. These machine-local results are ignored by Git. CI uploads logs and browser traces for inspection.
 
+CI pins the hosted Ubuntu 24.04 image and uses its preinstalled Chromium runtime libraries. It downloads only Playwright's headless Chromium shell, avoiding an unnecessary apt update for supplementary fonts. All browser tests still run; a missing runtime dependency fails the check normally.
+
 ## Coverage
 
 | Requirement                               | Evidence                                                                                                     |
