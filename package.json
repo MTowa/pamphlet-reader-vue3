@@ -13,13 +13,14 @@
     "build:apps": "pnpm --filter flipbook-vue-playground build && pnpm --filter flipbook-nuxt-playground build",
     "typecheck": "pnpm --filter @your-org/vue-flipbook typecheck && pnpm --filter flipbook-vue-playground typecheck && pnpm --filter flipbook-nuxt-playground typecheck",
     "test": "vitest run",
+    "test:licenses": "node --test tests/licenses/*.test.mjs",
     "test:e2e": "playwright test",
     "test:package": "node scripts/verify-package.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "fixtures": "node scripts/create-fixtures.mjs",
-    "check": "pnpm build && pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm test:package"
+    "check": "pnpm build && pnpm test:licenses && pnpm lint && pnpm format:check && pnpm typecheck && pnpm test && pnpm test:package"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

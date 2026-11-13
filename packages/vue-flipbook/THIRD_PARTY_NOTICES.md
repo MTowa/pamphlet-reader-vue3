@@ -1,8 +1,63 @@
 # Third-party notices
 
-- PDF.js 5.7.284: Apache-2.0; https://github.com/mozilla/pdf.js
-- StPageFlip 2.0.7: MIT; https://github.com/Nodlik/StPageFlip
-- StPageFlip is modified to cancel animation frames and timers on destruction. See patches/page-flip@2.0.7.patch in the source repository.
-- Bundled PDF support assets retain their own font, CMap, OpenJPEG, JBIG2 and QCMS licenses. Complete upstream texts are included in dist/licenses/.
-- Vue is a peer dependency (MIT), not bundled.
-- Original sample PDF artwork is MIT licensed.
+The original code of @your-org/vue-flipbook is MIT licensed, Copyright (c) 2026 MTowa.
+Third-party code, fonts and data retain their respective copyrights and licenses.
+The root MIT license does not replace the terms below.
+
+Full upstream texts are shipped in `dist/licenses/` in the installed package and
+tracked in `third-party/licenses/` in the source repository. `manifest.json` in
+those distributions (at `third-party/manifest.json` in source) records the reviewed
+versions, source URLs, exact text hashes and support-asset mapping. Keep these
+notices and the applicable license texts when redistributing the bundled code or assets.
+
+| Component                                                 | License / copyright holders                                              | Included license texts in `dist/licenses/`                     |
+| --------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| PDF.js 5.7.284                                            | Apache-2.0; Mozilla Foundation                                           | `PDF.js-LICENSE.txt`, `PDF.js-NOTICE.txt`                      |
+| StPageFlip 2.0.7                                          | MIT; Copyright (c) 2020 Nodlik                                           | `StPageFlip-LICENSE.txt`                                       |
+| Adobe CMaps                                               | BSD-3-Clause; Adobe Systems Incorporated                                 | `cmaps-LICENSE.txt`                                            |
+| Foxit standard fonts                                      | BSD-3-Clause; PDFium Authors                                             | `standard_fonts-LICENSE_FOXIT.txt`                             |
+| Liberation Sans fonts                                     | SIL OFL-1.1; Google Corporation, Red Hat, Inc.                           | `standard_fonts-LICENSE_LIBERATION.txt`                        |
+| OpenJPEG and PDF.js integration                           | BSD-2-Clause and Apache-2.0; the contributors listed in the texts        | `wasm-LICENSE_OPENJPEG.txt`, `wasm-LICENSE_PDFJS_OPENJPEG.txt` |
+| JBIG2 decoder and PDF.js integration                      | BSD-3-Clause and Apache-2.0; PDFium Authors, Mozilla Foundation          | `wasm-LICENSE_JBIG2.txt`, `wasm-LICENSE_PDFJS_JBIG2.txt`       |
+| QCMS and PDF.js integration                               | MIT and Apache-2.0; Mozilla Corporation, Marti Maria, Mozilla Foundation | `wasm-LICENSE_QCMS.txt`, `wasm-LICENSE_PDFJS_QCMS.txt`         |
+| QuickJS and pdf.js.quickjs sandbox asset                  | MIT; Fabrice Bellard, Charlie Gordon, Mozilla Foundation                 | `wasm-LICENSE_QUICKJS.txt`, `wasm-LICENSE_PDFJS_QUICKJS.txt`   |
+| webpack 5.106.2 runtime in the upstream PDF.js build      | MIT; JS Foundation and other contributors                                | `webpack-LICENSE.txt`                                          |
+| Vite 8.3.8 runtime helpers                                | MIT; VoidZero Inc. and Vite contributors                                 | `Vite-LICENSE.txt`                                             |
+| Rolldown 1.2.18 runtime helpers and upstream attributions | MIT; VoidZero Inc. & Contributors, Rollup contributors, Evan Wallace     | `Rolldown-LICENSE.txt`, `Rolldown-THIRD-PARTY-LICENSE.txt`     |
+
+## Modifications and provenance
+
+- StPageFlip is modified by this project to cancel animation frames and timers and
+  release page references on destruction. See `patches/page-flip@2.0.7.patch` and
+  `patches/README.md` in the source repository. Original attribution is retained.
+- PDF.js is bundled/minified, its Worker is embedded, and support assets are encoded
+  as lazy data-URL chunks by our build. The upstream PDF.js source and asset bytes
+  are not edited. `PDF.js-NOTICE.txt` preserves its distributed build's copyright
+  notice; it is an extracted notice, not a file originally named NOTICE upstream.
+- pdfjs-dist 5.7.284 includes `quickjs-eval.wasm` without the corresponding license
+  files. We include the two verbatim texts subsequently supplied by Mozilla in
+  [PDF.js PR #22185](https://github.com/mozilla/pdf.js/pull/22185), commit
+  `a3beacc1a35f2d285f0505c5489d8cb4a9ebcc89`. The sandbox asset is packaged by the
+  WASM glob; this viewer does not enable PDF form scripting.
+- The font binaries are unmodified. Liberation fonts remain under OFL-1.1, including
+  its reserved-name, attribution and redistribution conditions.
+- `bundled-dependencies.json` is generated by Vite from the modules in the build.
+  It supplements this inventory; it does not discover licenses inside prebuilt
+  dependencies or WASM/font/data files.
+
+## External dependencies and content
+
+- Vue is an external peer dependency, not bundled in the library. It is MIT licensed;
+  see [Vue's license](https://github.com/vuejs/core/blob/main/LICENSE). Applications
+  bundling Vue must retain its notices as well as their other dependencies' notices.
+- Development-only tools are not included wholesale in the library package. The
+  emitted runtime helpers listed above are covered separately. The Node-only optional
+  canvas dependency of PDF.js, its legacy build and ICC profiles are not packaged.
+- Original sample PDF artwork is MIT licensed. The fixtures use PDF standard font
+  references rather than embedding external font programs. The reader's license does
+  not grant rights to other PDF documents, photographs, logos or fonts supplied by users.
+
+For deployed applications, preserve relevant notices in the application distribution
+(for example, a third-party licenses page or accompanying files). Rebundling can
+remove comments; including this npm package during development alone does not ensure
+that its license files reach the deployed application.

@@ -1,2 +1,4 @@
 # A unified diff uses one leading space for an empty context line.
 patches/*.patch whitespace=-blank-at-eol
+# Keep upstream license snapshots byte-identical, including their original whitespace.
+third-party/licenses/* -text whitespace=-blank-at-eol,-blank-at-eof

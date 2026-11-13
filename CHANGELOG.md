@@ -10,5 +10,6 @@
 - Reproducible StPageFlip2.0.7 lifecycle fix.
 - Vue+Vite and Nuxt4 playgrounds with original redistributable PDFs.
 - Unit tests, production tarball consumer browser tests and GitHub Actions CI.
+- Complete source/package license inventory, QuickJS notices, StPageFlip patch attribution, and checks for missing or altered third-party texts in installed tarballs.
 
 This version has not been released to npm and has no release tag.
