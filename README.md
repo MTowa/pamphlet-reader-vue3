@@ -85,7 +85,7 @@ The component renders a loading placeholder on the server and creates its PDF wo
 ## Documentation
 
 - [API / Props・Events・公開メソッド](docs/api.md)
-- [SVGフォルダーの設定と使い方](docs/svg.md)
+- [SVGの命名規則・ページ順・フォルダーの設定](docs/svg.md)
 - [Architecture, worker distribution, lifecycle](docs/architecture.md)
 - [Verification and limitations / 検証と制限](docs/verification.md)
 - [Contributing](CONTRIBUTING.md)

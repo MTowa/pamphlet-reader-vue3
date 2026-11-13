@@ -135,6 +135,28 @@ function chooseFile(event: Event) {
                 @change="chooseFile"
             /></label>
             <span class="privacy-note">選んだファイルはブラウザー内で処理されます。</span>
+            <details class="input-guide">
+              <summary>ファイル名・ページ順のルール</summary>
+              <p>PDFの名前は自由です。PDF内のページ順で表示します。</p>
+              <p>
+                SVGは1ファイルが1ページです。表紙から
+                <code>001.svg</code>、<code>002.svg</code>、<code>003.svg</code>
+                と名前を付ける方法を推奨します。
+              </p>
+              <ul>
+                <li>数字を考慮してファイル名順に並べます。1 → 2 → 10の順です。</li>
+                <li>番号が飛んでも空白ページは作りません。画面のページ番号は1から順に付けます。</li>
+                <li>
+                  表紙・裏表紙という名前は自動判定しません。連番の先頭と末尾に配置してください。
+                </li>
+                <li>登録先の直下にあるSVGがすべて対象です。サブフォルダー内は読み込みません。</li>
+              </ul>
+              <p>
+                手元のSVGは <code>playground/vue-app/public/pamphlet/</code>
+                に配置して試せます。元のサンプルは別のフォルダーへ退避してください。
+              </p>
+              <p>「SVGフォルダー」は、この登録済みフォルダーを表示するボタンです。</p>
+            </details>
           </section>
           <section>
             <p class="panel-number">02 / PREFERENCES</p>
