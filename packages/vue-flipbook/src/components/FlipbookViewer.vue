@@ -60,7 +60,8 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
     :style="{ width: cssSize(width), height: cssSize(height) }"
     :data-mode="mode"
     :aria-busy="loading"
-    aria-label="PDFパンフレットビューアー"
+    :aria-label="svgDir ? 'SVGパンフレットビューアー' : 'PDFパンフレットビューアー'"
+    :data-source="svgDir ? 'svg' : 'pdf'"
     tabindex="0"
     @keydown="onKeydown"
   >
@@ -73,7 +74,7 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
       </div>
       <div v-else-if="loading" class="vfb__message" role="status">
         <span class="vfb__spinner" aria-hidden="true" />
-        <p>PDFを読み込んでいます…</p>
+        <p>{{ svgDir ? 'SVG' : 'PDF' }}を読み込んでいます…</p>
       </div>
     </div>
     <div v-if="showToolbar" class="vfb__toolbar" role="group" aria-label="ページ操作">

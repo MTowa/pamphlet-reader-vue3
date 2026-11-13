@@ -1,12 +1,30 @@
 import { describe, expect, it, vi } from 'vitest'
-import { PageRenderQueue } from '../../packages/vue-flipbook/src/pdf/PageRenderQueue'
+import { PageRenderQueue } from '../../packages/vue-flipbook/src/rendering/PageRenderQueue'
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
 function result() {
-  return { canvas: document.createElement('canvas'), release: vi.fn() }
+  return { element: document.createElement('canvas'), release: vi.fn() }
 }
 
 describe('bounded PDF render queue', () => {
+  it('reuses resolution-independent SVG images when resized and releases them on eviction', async () => {
+    const first = { element: document.createElement('img'), release: vi.fn() }
+    const render = vi.fn(async () => first)
+    const queue = new PageRenderQueue(
+      { render, resolutionIndependent: true },
+      vi.fn(),
+      vi.fn(),
+      vi.fn(),
+    )
+    queue.update([1], 200, 300)
+    await tick()
+    queue.update([1], 1000, 1500)
+    await tick()
+    expect(render).toHaveBeenCalledOnce()
+    queue.update([], 1000, 1500)
+    expect(first.release).toHaveBeenCalledOnce()
+    queue.destroy()
+  })
   it('renders in priority order, reuses smaller sizes, and evicts offscreen canvases', async () => {
     const results = Array.from({ length: 10 }, result)
     const render = vi.fn(async (page: number) => results[page - 1]!)

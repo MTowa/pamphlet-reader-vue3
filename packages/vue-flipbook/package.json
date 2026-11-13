@@ -12,10 +12,19 @@
       "import": "./dist/index.js"
     },
     "./style.css": "./dist/style.css",
+    "./vite": {
+      "types": "./tooling/vite.d.mts",
+      "import": "./tooling/vite.mjs"
+    },
+    "./nuxt": {
+      "types": "./tooling/nuxt.d.mts",
+      "import": "./tooling/nuxt.mjs"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
+    "tooling",
     "README.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"

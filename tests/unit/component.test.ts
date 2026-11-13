@@ -16,7 +16,7 @@ vi.mock('../../packages/vue-flipbook/src/pdf/PdfDocumentSession', () => ({
       return { pageCount: 6, aspectRatio: 0.7 }
     }
     async render() {
-      return { canvas: document.createElement('canvas'), release: vi.fn() }
+      return { element: document.createElement('canvas'), release: vi.fn() }
     }
     destroy() {
       mocks.destroy()
@@ -60,6 +60,17 @@ afterEach(() => {
 })
 
 describe('component API', () => {
+  it.each([{}, { src: '/sample.pdf', svgDir: '/pages/' }])(
+    'rejects ambiguous or missing document sources: %j',
+    async (props) => {
+      const wrapper = mount(FlipbookViewer, { props })
+      await flushPromises()
+      expect(wrapper.emitted('error')?.[0]?.[0]).toMatchObject({ code: 'load' })
+      expect(wrapper.find('[role="alert"]').exists()).toBe(true)
+      expect(wrapper.emitted('ready')).toBeUndefined()
+      wrapper.unmount()
+    },
+  )
   it('emits ready and loading events and uses a one-based startPage', async () => {
     const wrapper = mount(FlipbookViewer, { props: { src: '/sample.pdf', startPage: 5 } })
     await flushPromises()

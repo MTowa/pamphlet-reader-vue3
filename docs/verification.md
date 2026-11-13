@@ -11,11 +11,13 @@ pnpm typecheck
 pnpm lint
 pnpm format:check
 pnpm test
+pnpm test:tooling
+pnpm test:licenses
 pnpm exec playwright install chromium
 pnpm test:package
 ```
 
-The package verifier builds a tgz, checks its exported files, installs it into new standalone directories outside the workspace, typechecks/builds both consumers, then runs Playwright. There is no source alias, workspace symlink, manual worker configuration, copied worker asset or CDN in these consumers. The Vue app is served under /demo/ and the Nuxt app under /nuxt-demo/.
+The package verifier builds a tgz, checks its exported files, installs it into new standalone directories outside the workspace, typechecks/builds both consumers, then runs Playwright. There is no source alias, workspace symlink, manual worker configuration, copied worker asset or CDN in these consumers. The Vue app is served under /demo/ and the Nuxt app under /nuxt-demo/. Generated SVG manifests are excluded when copying the apps, so each consumer must create its own index. After browser checks, both development servers are started and tested for SVG addition/deletion (6 → 7 → 6 pages) through their HTTP-served index.
 
 The run writes per-command logs, the tarball's SHA-256 and consumer directory paths to .artifacts/. These machine-local results are ignored by Git. CI uploads logs and browser traces for inspection.
 
@@ -43,7 +45,20 @@ CI pins the hosted Ubuntu 24.04 image and uses its preinstalled Chromium runtime
 | PDF support assets                        | Unit test decodes Japanese CMap, TrueType font and OpenJPEG WASM data without network fetch.                 |
 | Types and package integration             | Library and both consumers pass typechecking; production apps use the installed tarball.                     |
 
-The unit suite has20 cases across page mapping, render scheduling, component API, SSR, lifecycle and support assets. The browser suite has18 cases across desktop and mobile Chromium conditions.
+The unit suite has33 cases across page mapping, render scheduling, component API, SSR, lifecycle, SVG index validation and support assets. The tooling suite adds5 cases for natural page order, index updates, file preservation, path boundaries and development watching. The browser suite passes37 cases across desktop and mobile Chromium; one additional mobile performance measurement is deliberately skipped because the descriptive comparison is run once on desktop.
+
+SVG browser checks cover first-load rendering in both installed Vue/Nuxt production consumers, zero PDF-runtime requests and zero Workers on a fresh SVG route, navigation, drag/touch, fullscreen, resizing, PDF ↔ SVG switching with worker release, missing index/first image/later image and retry, stale index responses, and unmount during image loading. Screenshots of desktop and mobile SVG layouts are saved with the browser artifacts. SVG retains the same one-based page API and nearby-page cache; a unit case verifies that resizing reuses resolution-independent images.
+
+## Example PDF/SVG comparison
+
+A local run on 2026-11-13 used the same six-page original Fieldnotes artwork, the installed production Vue app, Chromium with a 1440×1100 viewport, and a fresh browser context per format. No artificial network or CPU throttling was applied. Font metrics can differ between the PDF and SVG samples.
+
+| Measurement                                               |           PDF |          SVG |
+| --------------------------------------------------------- | ------------: | -----------: |
+| Encoded subresource response bodies through ready + 300ms | 538,453 bytes | 49,333 bytes |
+| Navigation start to the component's first ready event     |         436ms |        138ms |
+
+The byte measurement sums Resource Timing `encodedBodySize` across scripts, styles and document resources; it excludes the main HTML response and headers. It covers initial display and nearby-page prefetch, not every page. The main saving here comes from avoiding the PDF runtime and its worker code. These are single-run observations while the test suite was running, not a general speed guarantee, an isolated performance benchmark or a result for a user's own documents. The automated test records the raw per-resource comparison as a report attachment and does not impose a timing threshold.
 
 License verification adds four regression cases (`pnpm test:licenses`, after `pnpm build`): intact notices pass, while a missing QuickJS text, a truncated copyright/permission text, and an unreviewed bundled dependency fail. The build checks reviewed versions, asset filenames, upstream notices and license hashes against `third-party/manifest.json`. `pnpm test:package` additionally verifies all 18 reviewed license/notice texts byte for byte in both independent consumers installed from the actual tarball. Vite's module license report supplements the manual review of prebuilt PDF.js code, fonts, CMaps and WASM assets.
 

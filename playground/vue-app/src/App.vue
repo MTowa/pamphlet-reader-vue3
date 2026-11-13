@@ -10,6 +10,9 @@ import type {
 import '@your-org/vue-flipbook/style.css'
 
 const base = import.meta.env.BASE_URL
+const format = ref(
+  new URLSearchParams(window.location.search).get('format') === 'svg' ? 'svg' : 'pdf',
+)
 const src = shallowRef<PdfSource>(base + 'sample.pdf')
 const viewer = ref<FlipbookViewerExpose>()
 const showCover = ref(true)
@@ -18,17 +21,38 @@ const mounted = ref(true)
 const metadata = ref<FlipbookReady>()
 const page = ref<FlipbookPageChange>()
 const state = ref('準備中')
+const example = computed(() =>
+  format.value === 'svg'
+    ? '<FlipbookViewer\n  svg-dir="/pamphlet/"\n/>'
+    : '<FlipbookViewer\n  src="/pamphlet.pdf"\n/>',
+)
+function onReady(value: FlipbookReady) {
+  metadata.value = value
+  state.value = '読み込み完了'
+  performance.mark('flipbook-ready')
+}
 const filename = computed(() =>
-  typeof src.value === 'string' ? src.value.split('/').at(-1) : src.value.name,
+  format.value === 'svg'
+    ? 'pamphlet/ (SVG)'
+    : typeof src.value === 'string'
+      ? src.value.split('/').at(-1)
+      : src.value.name,
 )
 function select(name: string) {
+  format.value = 'pdf'
   src.value = base + name + '.pdf'
+  metadata.value = undefined
+  page.value = undefined
+}
+function selectSvg() {
+  format.value = 'svg'
   metadata.value = undefined
   page.value = undefined
 }
 function chooseFile(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
   if (file) {
+    format.value = 'pdf'
     src.value = file
     metadata.value = undefined
     page.value = undefined
@@ -50,7 +74,7 @@ function chooseFile(event: Event) {
           <p class="eyebrow">A PDF. A FEW PAGES. A NEW PERSPECTIVE.</p>
           <h1>読む時間に、紙の心地よさを。</h1>
           <p class="description">
-            PDFをそのまま、めくれる一冊へ。ページをドラッグして、読み進めてみてください。
+            PDFもSVGも、めくれる一冊へ。ページをドラッグして、読み進めてみてください。
           </p>
         </div>
         <span class="framework-badge"><i /> Vue 3 + TypeScript</span>
@@ -64,16 +88,12 @@ function chooseFile(event: Event) {
           <FlipbookViewer
             v-if="mounted"
             ref="viewer"
-            :src="src"
+            :src="format === 'pdf' ? src : undefined"
+            :svg-dir="format === 'svg' ? base + 'pamphlet/' : undefined"
             :show-cover="showCover"
             :show-toolbar="showToolbar"
             height="min(740px, 78svh)"
-            @ready="
-              (value) => {
-                metadata = value
-                state = '読み込み完了'
-              }
-            "
+            @ready="onReady"
             @page-change="page = $event"
             @loading="state = $event.loading ? '読み込み中' : '読み込み完了'"
             @error="state = 'エラー'"
@@ -87,8 +107,8 @@ function chooseFile(event: Event) {
         <aside class="sidebar">
           <section>
             <p class="panel-number">01 / DOCUMENT</p>
-            <h2>PDFを選ぶ</h2>
-            <p>サンプル、またはお手元のPDFで試せます。</p>
+            <h2>資料を選ぶ</h2>
+            <p>PDFとSVGのサンプル、またはお手元のPDFで試せます。</p>
             <button
               class="sample-choice"
               :class="{ selected: filename === 'sample.pdf' }"
@@ -96,6 +116,15 @@ function chooseFile(event: Event) {
             >
               <span>▤</span
               ><span><strong>Fieldnotes</strong><small>オリジナルサンプル · 6ページ</small></span
+              ><span>↗</span>
+            </button>
+            <button
+              class="sample-choice"
+              :class="{ selected: format === 'svg' }"
+              @click="selectSvg"
+            >
+              <span>▤</span
+              ><span><strong>SVGフォルダー</strong><small>Fieldnotes · 6ページ</small></span
               ><span>↗</span>
             </button>
             <label class="file-label"
@@ -119,11 +148,15 @@ function chooseFile(event: Event) {
           </section>
           <section class="integration">
             <p class="panel-number">03 / INTEGRATION</p>
-            <h2>PDFを指定するだけ。</h2>
-            <pre><code>&lt;FlipbookViewer
-  src="/pamphlet.pdf"
-/&gt;</code></pre>
-            <p>画像への事前変換も、Workerの設定も不要です。</p>
+            <h2>{{ format === 'svg' ? 'フォルダーを指定。' : 'PDFを指定するだけ。' }}</h2>
+            <pre><code>{{ example }}</code></pre>
+            <p>
+              {{
+                format === 'svg'
+                  ? '初回にフォルダーを登録すれば、ページ一覧を自動生成します。'
+                  : '画像への事前変換も、Workerの設定も不要です。'
+              }}
+            </p>
           </section>
           <details class="diagnostics">
             <summary>検証用コントロール</summary>

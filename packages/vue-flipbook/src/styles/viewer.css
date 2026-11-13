@@ -68,7 +68,7 @@
   justify-content: center;
   background: #fff;
 }
-.vfb__paper canvas {
+.vfb__paper .vfb__content {
   display: block;
   position: relative;
   max-width: 100%;
@@ -82,6 +82,10 @@
   color: #babbb5;
   font-size: 26px;
   font-weight: 300;
+}
+.vfb__paper img.vfb__content {
+  width: 100%;
+  height: 100%;
 }
 .vfb__page[data-rendered] .vfb__placeholder {
   visibility: hidden;
