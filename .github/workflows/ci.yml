@@ -1,0 +1,43 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main, 'feat/**', 'fix/**', 'docs/**']
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.13.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm format:check
+      - run: pnpm test
+      # Hosted Ubuntu includes the Chromium runtime libraries. Avoid an apt
+      # update for supplementary fonts; these tests only need headless Chromium.
+      - run: pnpm exec playwright install chromium --only-shell
+      - run: pnpm test:package
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-results
+          path: |
+            playwright-report/
+            test-results/
+            .artifacts/package-check-*.log
+            .artifacts/package-verification.json
+          retention-days: 7
