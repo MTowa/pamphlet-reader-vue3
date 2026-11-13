@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHash } from 'node:crypto'
+import { manifest as licenseManifest, verifyPackagedLicenses } from './license-utils.mjs'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const artifacts = path.join(root, '.artifacts')
@@ -63,6 +64,9 @@ for (const required of [
   'dist/style.css',
   'LICENSE',
   'THIRD_PARTY_NOTICES.md',
+  'dist/licenses/manifest.json',
+  'dist/licenses/bundled-dependencies.json',
+  ...licenseManifest.licenses.map((entry) => 'dist/licenses/' + entry.file),
 ]) {
   if (!names.includes(required)) throw new Error('Missing package file: ' + required)
 }
@@ -112,6 +116,8 @@ for (const app of ['vue-app', 'nuxt-app']) {
   const installed = await realpath(path.join(destination, 'node_modules', libManifest.name))
   if (installed.startsWith(root))
     throw new Error('Consumer resolved workspace source instead of installed tarball')
+  await verifyPackagedLicenses(installed)
+  console.log('Verified installed license texts: ' + app)
   if (app === 'vue-app') {
     run(process.execPath, ['node_modules/vue-tsc/bin/vue-tsc.js', '--noEmit'], destination)
     run(
@@ -137,6 +143,7 @@ const report = {
     .update(await readFile(tarball))
     .digest('hex'),
   node: process.version,
+  licenseTexts: licenseManifest.licenses.length,
   verified: false,
 }
 await writeFile(path.join(artifacts, 'package-verification.json'), JSON.stringify(report, null, 2))

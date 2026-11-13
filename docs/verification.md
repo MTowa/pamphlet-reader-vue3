@@ -45,6 +45,8 @@ CI pins the hosted Ubuntu 24.04 image and uses its preinstalled Chromium runtime
 
 The unit suite has20 cases across page mapping, render scheduling, component API, SSR, lifecycle and support assets. The browser suite has18 cases across desktop and mobile Chromium conditions.
 
+License verification adds four regression cases (`pnpm test:licenses`, after `pnpm build`): intact notices pass, while a missing QuickJS text, a truncated copyright/permission text, and an unreviewed bundled dependency fail. The build checks reviewed versions, asset filenames, upstream notices and license hashes against `third-party/manifest.json`. `pnpm test:package` additionally verifies all 18 reviewed license/notice texts byte for byte in both independent consumers installed from the actual tarball. Vite's module license report supplements the manual review of prebuilt PDF.js code, fonts, CMaps and WASM assets.
+
 ## Scope and known limitations
 
 - Mobile tests emulate a Pixel7 in desktop Chromium. They do not prove behavior on a physical Android/iPhone device. Safari and Firefox are not part of this run.

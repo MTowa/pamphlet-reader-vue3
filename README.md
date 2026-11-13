@@ -109,4 +109,8 @@ This is a visual canvas viewer, not a complete accessible PDF reader: text selec
 
 ## License
 
-MIT © 2026 MTowa. PDF.js is Apache-2.0, StPageFlip is MIT. The distribution includes upstream license texts for bundled PDF support assets in `dist/licenses/` and records the StPageFlip lifecycle patch in `THIRD_PARTY_NOTICES.md`. All sample artwork is original and MIT licensed.
+Original project code: MIT © 2026 MTowa. Bundled third-party code, fonts and data retain their own licenses; the root MIT declaration does not relicense them. PDF.js is Apache-2.0, StPageFlip and QuickJS are MIT, and support assets also include BSD and SIL OFL terms.
+
+The package includes `THIRD_PARTY_NOTICES.md` and the upstream texts and reviewed inventory in `dist/licenses/`. The source repository tracks these texts in `third-party/licenses/`, including the attribution for the StPageFlip patch. Builds check the inventory, and package tests verify the exact license bytes after installing the real tarball. See the [license review](https://github.com/MTowa/pamphlet-reader-vue3/tree/main/third-party) for provenance and maintenance.
+
+When deploying an application that bundles this library, carry the applicable notices and license texts into the application distribution, together with notices for Vue and other application dependencies. All sample artwork is original and MIT licensed; user-supplied PDFs and their contents keep their own rights.
