@@ -5,6 +5,8 @@
 - FlipbookViewer.vue: public props, typed events, toolbar, error/loading states, keyboard and fullscreen controls.
 - useFlipbook.ts: component lifecycle, source-change generations, container measurement and imperative page DOM.
 - PdfDocumentSession.ts: one PDF.js loading task and dedicated Worker per document; cancellable Canvas rendering.
+- SvgDocumentSession.ts: static index validation, abortable image loading and SVG image release; no PDF imports.
+- rendering/types.ts: common page renderer contract returning a DOM element and a release callback.
 - PageRenderQueue.ts: serial rendering, nearby-page priority, bounded cache and eviction.
 - FlipEngine.ts / stPageFlip.ts: replaceable animation engine contract. Only this adapter knows StPageFlip's zero-based API.
 - pages.ts: deterministic one-based page and spread mapping.
@@ -17,7 +19,13 @@ The library build uses Vite's worker-and-inline import. It produces a self-conta
 
 This avoids a host-specific public path, workerSrc mutation, external CDN version matching, or client configuration. PDF.js and StPageFlip are loaded after mount; the package's top-level import is safe on the server. Vue remains an external peer dependency.
 
-Tradeoff: the PDF runtime chunk includes the worker and is comparatively large (approximately 1.7 MB uncompressed before consumer minification). It is only loaded when a viewer mounts. The worker requires a Content Security Policy allowing **worker-src 'self' blob:**. This initial release has no separate worker URL override.
+Tradeoff: the PDF runtime chunk includes the worker and is comparatively large (approximately 1.7 MB uncompressed before consumer minification). It is only loaded when a viewer opens a PDF. SVG opens a separate small image renderer; the flip engine and page queue are shared. The worker requires a Content Security Policy allowing **worker-src 'self' blob:**. This initial release has no separate worker URL override.
+
+## SVG directory integration
+
+The separate `/vite` and `/nuxt` package exports run in Node during development/build. They discover SVG files under the host's public directory and write `flipbook.json` with natural numeric filename order. The browser fetches this static index and loads nearby pages as images. A watcher regenerates the index and reloads the development app on page changes. There is no directory-listing endpoint, dynamic server dependency or Node tooling in the browser export. The generator refuses unrelated existing manifests, empty directories and SVG symlinks.
+
+SVG markup is never injected into the DOM. `<img>` keeps scripts inactive; external dependencies inside SVG may not load. The cache reuses images at every display size and releases evicted images; first-page dimensions determine the paper ratio. No PDF.js, worker or PDF support assets are requested in an SVG-only session. Changing formats uses the same source-generation guard and destroys the previous document. Index fetches and image loads respond to cancellation. See [SVG usage and asset constraints](svg.md).
 
 ## Font, CMap and image assets
 

@@ -2,6 +2,8 @@
 
 ## 0.1.0 — Unreleased
 
+- SVG directory sources with automatic numeric page ordering, static manifests, Vite/Nuxt development watchers, and lazy image rendering without PDF.js or a Worker.
+- Shared page rendering contract, SVG/PDF source switching, and SVG examples with matching original artwork.
 - Vue3 FlipbookViewer with URL/File sources, PDF.js rendering and StPageFlip adapter.
 - Automatic inline workers and lazy packaged CMap/font/WASM support assets.
 - Responsive spread/single-page modes, optional cover and toolbar, fullscreen and scoped keyboard navigation.

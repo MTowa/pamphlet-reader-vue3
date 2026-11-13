@@ -1,15 +1,11 @@
-import type { RenderedPage } from './PdfDocumentSession'
-
-interface Renderer {
-  render(page: number, width: number, height: number, signal: AbortSignal): Promise<RenderedPage>
-}
+import type { PageRenderer, RenderedPage } from './types'
 interface CacheEntry {
   result: RenderedPage
   width: number
   height: number
 }
 
-/** Sequential rendering prevents bursts of canvases and overlapping PDF.js tasks. */
+/** Sequential rendering bounds nearby images/canvases and avoids overlapping tasks. */
 export class PageRenderQueue {
   private cache = new Map<number, CacheEntry>()
   private wanted: number[] = []
@@ -22,8 +18,8 @@ export class PageRenderQueue {
   private failed = new Set<number>()
 
   constructor(
-    private renderer: Renderer,
-    private attach: (page: number, canvas: HTMLCanvasElement) => void,
+    private renderer: PageRenderer,
+    private attach: (page: number, element: HTMLElement) => void,
     private detach: (page: number) => void,
     private onError: (error: unknown) => void,
   ) {}
@@ -46,15 +42,19 @@ export class PageRenderQueue {
     void this.pump()
   }
 
-  /** Used when the flip engine is rebuilt; cached canvases are moved, not copied. */
+  /** Used when the flip engine is rebuilt; cached page elements are moved, not copied. */
   reattach() {
-    for (const [page, cached] of this.cache) this.attach(page, cached.result.canvas)
+    for (const [page, cached] of this.cache) this.attach(page, cached.result.element)
   }
 
   private sufficient(page: number) {
     const entry = this.cache.get(page)
     // Small resizes and shrinking reuse the existing canvas.
-    return entry && entry.width >= this.width * 0.85 && entry.height >= this.height * 0.85
+    return (
+      entry &&
+      (this.renderer.resolutionIndependent ||
+        (entry.width >= this.width * 0.85 && entry.height >= this.height * 0.85))
+    )
   }
 
   private async pump() {
@@ -76,7 +76,7 @@ export class PageRenderQueue {
           } else {
             this.cache.get(page)?.result.release()
             this.cache.set(page, { result, width, height })
-            this.attach(page, result.canvas)
+            this.attach(page, result.element)
           }
         } catch (error) {
           if (!this.disposed && !abort.signal.aborted) {

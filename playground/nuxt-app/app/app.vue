@@ -2,22 +2,35 @@
 import { ref } from 'vue'
 import { FlipbookViewer } from '@your-org/vue-flipbook'
 import type { FlipbookReady } from '@your-org/vue-flipbook'
-const source = ref('/nuxt-demo/sample.pdf')
+import { useRoute, useRuntimeConfig } from '#imports'
+const base = useRuntimeConfig().app.baseURL
+const format = ref(useRoute().query.format === 'svg' ? 'svg' : 'pdf')
+const source = ref(base + 'sample.pdf')
 const metadata = ref<FlipbookReady>()
+function select(name: string) {
+  format.value = 'pdf'
+  source.value = base + name + '.pdf'
+}
 </script>
 
 <template>
   <main class="nuxt-demo">
     <p class="eyebrow">VUE FLIPBOOK / NUXT 4</p>
-    <h1>Nuxtでも、PDFを指定するだけ。</h1>
-    <p>SSRで読み込めるコンポーネント。PDFとWorkerはブラウザー内で起動します。</p>
+    <h1>Nuxtでも、PDFとSVGを一冊に。</h1>
+    <p>SSRで読み込めるコンポーネント。SVG表示時はPDF.jsとWorkerを読み込みません。</p>
     <nav>
-      <button @click="source = '/nuxt-demo/sample.pdf'">サンプルPDF</button
-      ><button @click="source = '/nuxt-demo/alternate.pdf'">別のPDF</button
-      ><button @click="source = '/nuxt-demo/missing.pdf'">存在しないPDF</button>
+      <button @click="select('sample')">サンプルPDF</button
+      ><button @click="select('alternate')">別のPDF</button
+      ><button @click="select('missing')">存在しないPDF</button>
+      <button @click="format = 'svg'">SVGフォルダー</button>
     </nav>
     <!-- Deliberately no ClientOnly: verifies SSR-safe imports and hydration. -->
-    <FlipbookViewer :src="source" height="min(760px, 78svh)" @ready="metadata = $event" />
+    <FlipbookViewer
+      :src="format === 'pdf' ? source : undefined"
+      :svg-dir="format === 'svg' ? base + 'pamphlet/' : undefined"
+      height="min(760px, 78svh)"
+      @ready="metadata = $event"
+    />
     <output data-testid="metadata">{{
       metadata ? metadata.pageCount + ' pages' : '準備中'
     }}</output>

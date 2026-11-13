@@ -1,7 +1,8 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { FlipEngine, FlipEngineOptions } from '../adapters/FlipEngine'
 import type { PdfDocumentSession } from '../pdf/PdfDocumentSession'
-import { PageRenderQueue } from '../pdf/PageRenderQueue'
+import type { SvgDocumentSession } from '../svg/SvgDocumentSession'
+import { PageRenderQueue } from '../rendering/PageRenderQueue'
 import { clampPage, renderWindow, visiblePages } from '../utils/pages'
 import { FlipbookError } from '../types'
 import type {
@@ -19,7 +20,9 @@ interface Callbacks {
   error(error: FlipbookError): void
 }
 
-export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Callbacks) {
+type ResolvedProps = Required<Omit<FlipbookViewerProps, 'src' | 'svgDir'>> &
+  Pick<FlipbookViewerProps, 'src' | 'svgDir'>
+export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
   const root = ref<HTMLElement>()
   const stage = ref<HTMLElement>()
   const loading = ref(true)
@@ -39,7 +42,7 @@ export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Cal
 
   let mounted = false
   let epoch = 0
-  let session: PdfDocumentSession | undefined
+  let session: PdfDocumentSession | SvgDocumentSession | undefined
   let queue: PageRenderQueue | undefined
   let engine: FlipEngine | undefined
   let createEngine: ((options: FlipEngineOptions) => FlipEngine) | undefined
@@ -70,7 +73,7 @@ export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Cal
     if (
       !readySent &&
       shownPages.value.length &&
-      shownPages.value.every((page) => containers[page - 1]?.querySelector('canvas'))
+      shownPages.value.every((page) => containers[page - 1]?.dataset.rendered === 'true')
     ) {
       readySent = true
       progress(false)
@@ -96,7 +99,9 @@ export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Cal
   function reportError(code: 'load' | 'render', cause: unknown) {
     const message =
       code === 'load'
-        ? 'PDFを読み込めませんでした。ファイルとURL、配信元のアクセス設定を確認してください。'
+        ? props.svgDir
+          ? 'SVGを読み込めませんでした。フォルダーのパスとページ一覧の生成設定を確認してください。'
+          : 'PDFを読み込めませんでした。ファイルとURL、配信元のアクセス設定を確認してください。'
         : 'ページを描画できませんでした。もう一度読み込んでください。'
     failure.value = new FlipbookError(code, message, cause)
     progress(false)
@@ -143,7 +148,7 @@ export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Cal
       page.className = 'vfb__page'
       page.dataset.page = String(index + 1)
       page.setAttribute('role', 'img')
-      page.setAttribute('aria-label', `PDF ${index + 1}ページ`)
+      page.setAttribute('aria-label', `${props.svgDir ? 'SVG' : 'PDF'} ${index + 1}ページ`)
       const paper = document.createElement('div')
       paper.className = 'vfb__paper'
       const placeholder = document.createElement('span')
@@ -204,17 +209,36 @@ export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Cal
     progress(true)
     try {
       await disposeResources()
-      const [pdf, flip] = await Promise.all([
-        import('../pdf/PdfDocumentSession'),
+      const source = props.src,
+        directory = props.svgDir
+      if (Boolean(source) === Boolean(directory))
+        throw new Error('Specify exactly one of src and svgDir.')
+      const [document, flip] = await Promise.all([
+        directory
+          ? import('../svg/SvgDocumentSession').then(({ SvgDocumentSession }) => {
+              const session = new SvgDocumentSession()
+              return { session, open: () => session.open(directory) }
+            })
+          : import('../pdf/PdfDocumentSession').then(({ PdfDocumentSession }) => {
+              const session = new PdfDocumentSession()
+              return {
+                session,
+                open: () =>
+                  session.open(source!, (loaded, total) => {
+                    if (mounted && ownEpoch === epoch) progress(true, loaded, total)
+                  }),
+              }
+            }),
         import('../adapters/stPageFlip'),
       ])
-      if (!mounted || ownEpoch !== epoch) return
+      if (!mounted || ownEpoch !== epoch) {
+        await document.session.destroy()
+        return
+      }
       createEngine = flip.createFlipEngine
-      const documentSession = new pdf.PdfDocumentSession()
+      const documentSession = document.session
       session = documentSession
-      const metadata = await documentSession.open(props.src, (loaded, total) => {
-        if (mounted && ownEpoch === epoch) progress(true, loaded, total)
-      })
+      const metadata = await document.open()
       if (!mounted || ownEpoch !== epoch) {
         await documentSession.destroy()
         return
@@ -224,16 +248,17 @@ export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Cal
       currentPage.value = clampPage(props.startPage, pageCount.value)
       queue = new PageRenderQueue(
         documentSession,
-        (page, canvas) => {
+        (page, element) => {
           const paper = containers[page - 1]?.firstElementChild
           if (!paper) return
-          paper.querySelector('canvas')?.remove()
-          paper.append(canvas)
+          paper.querySelector('.vfb__content')?.remove()
+          element.classList.add('vfb__content')
+          paper.append(element)
           containers[page - 1]!.dataset.rendered = 'true'
           checkReady()
         },
         (page) => {
-          containers[page - 1]?.querySelector('canvas')?.remove()
+          containers[page - 1]?.querySelector('.vfb__content')?.remove()
           if (containers[page - 1]) delete containers[page - 1]!.dataset.rendered
         },
         (cause) => {
@@ -303,7 +328,7 @@ export function useFlipbook(props: Required<FlipbookViewerProps>, callbacks: Cal
     void reload()
   })
   watch(
-    () => props.src,
+    () => [props.src, props.svgDir],
     () => {
       void reload()
     },

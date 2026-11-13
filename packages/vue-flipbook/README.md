@@ -1,8 +1,8 @@
 # Vue Flipbook
 
-A reusable Vue 3 PDF flipbook. Supply a PDF URL or File; the bundled PDF.js worker and lazy canvas renderer do the rest.
+A reusable Vue 3 PDF and SVG flipbook. Supply a PDF URL/File or a directory of pre-generated SVG pages.
 
-Vue 3向けのPDFパンフレットビューアーです。PDFを指定するだけで、ページめくり・見開き・スマートフォンでの単ページ表示を利用できます。
+Vue 3向けのパンフレットビューアーです。PDFまたは事前に用意したSVGのフォルダーを指定して、ページめくり・見開き・スマートフォンでの単ページ表示を利用できます。
 
 **Development preview / 開発版:** `@your-org/vue-flipbook` is a placeholder package name. This package has not been published to npm. Build and install a local tarball using the steps below.
 
@@ -21,6 +21,8 @@ import '@your-org/vue-flipbook/style.css'
 
 No PDF-to-image conversion, CDN, manual worker configuration, backend, Tailwind, or Nuxt dependency is required. CSS is an explicit import for predictable SSR and bundler behavior. Public page numbers start at **1**.
 
+For pre-generated SVG pages, register the public folder once with the Vite plugin or Nuxt module, then use `<FlipbookViewer svg-dir="/pamphlet/" />`. Page order is generated automatically from filenames; SVG-only viewers do not load PDF.js or a PDF worker. See [SVGフォルダーの設定と使い方](docs/svg.md).
+
 ## Develop / ローカルで試す
 
 Use Node.js **24 LTS** (24.15+), or 22.22.3+, and pnpm **11.13.0**.
@@ -34,7 +36,7 @@ pnpm dev:nuxt
 # Nuxt playground: http://127.0.0.1:3000/nuxt-demo/
 ```
 
-Original, redistributable PDF fixtures are included. Regenerate them with `pnpm fixtures`.
+Original, redistributable PDF and SVG fixtures are included. Regenerate them with `pnpm fixtures`. The playground's 「SVGフォルダー」 button selects the SVG sample; `?format=svg` opens it directly.
 
 ## Install the built package / ビルド済みパッケージを使う
 
@@ -71,6 +73,7 @@ The component renders a loading placeholder on the server and creates its PDF wo
 ## Features / 機能
 
 - URL and local File inputs; loading, error, retry, and source replacement.
+- SVG directory input with numeric filename ordering, automatically generated static index, and development file watching for Vite/Nuxt.
 - Animated dragging, touch swipes, previous/next, page jump, optional single cover.
 - Container-based responsive single-page and spread modes.
 - Scoped keyboard navigation, labeled controls, fullscreen when supported.
@@ -82,6 +85,7 @@ The component renders a loading placeholder on the server and creates its PDF wo
 ## Documentation
 
 - [API / Props・Events・公開メソッド](docs/api.md)
+- [SVGの命名規則・ページ順・フォルダーの設定](docs/svg.md)
 - [Architecture, worker distribution, lifecycle](docs/architecture.md)
 - [Verification and limitations / 検証と制限](docs/verification.md)
 - [Contributing](CONTRIBUTING.md)
@@ -95,6 +99,8 @@ pnpm typecheck
 pnpm lint
 pnpm format:check
 pnpm test
+pnpm test:tooling
+pnpm test:licenses
 pnpm exec playwright install chromium
 pnpm test:package
 ```
@@ -105,7 +111,7 @@ pnpm test:package
 
 Current evergreen desktop/mobile browsers with module Workers, Canvas, ResizeObserver and the modern PDF.js APIs (including Promise.withResolvers). Fullscreen depends on browser support and user activation. Remote PDF servers must permit CORS. Strict CSP must allow `worker-src 'self' blob:`; PDF codecs may require `script-src 'wasm-unsafe-eval'`. See the architecture document for details.
 
-This is a visual canvas viewer, not a complete accessible PDF reader: text selection, search, annotations, password entry and screen-reader PDF text are not implemented. Provide the original PDF link or an HTML alternative alongside the viewer when needed.
+This is a visual Canvas/image viewer, not a complete accessible document reader: text selection, search, annotations, password entry and screen-reader document text are not implemented. Provide the original document link or an HTML alternative alongside the viewer when needed. SVG uses image loading and AbortSignal.any; its host must permit the index under connect-src and page images under img-src. SVG-only use does not require PDF worker or WASM CSP permissions.
 
 ## License
 
@@ -113,4 +119,4 @@ Original project code: MIT © 2026 MTowa. Bundled third-party code, fonts and da
 
 The package includes `THIRD_PARTY_NOTICES.md` and the upstream texts and reviewed inventory in `dist/licenses/`. The source repository tracks these texts in `third-party/licenses/`, including the attribution for the StPageFlip patch. Builds check the inventory, and package tests verify the exact license bytes after installing the real tarball. See the [license review](https://github.com/MTowa/pamphlet-reader-vue3/tree/main/third-party) for provenance and maintenance.
 
-When deploying an application that bundles this library, carry the applicable notices and license texts into the application distribution, together with notices for Vue and other application dependencies. All sample artwork is original and MIT licensed; user-supplied PDFs and their contents keep their own rights.
+When deploying an application that bundles this library, carry the applicable notices and license texts into the application distribution, together with notices for Vue and other application dependencies. All sample artwork is original and MIT licensed; user-supplied PDFs, SVGs and their contents keep their own rights.

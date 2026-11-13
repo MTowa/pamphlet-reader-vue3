@@ -2,7 +2,10 @@ export type PdfSource = string | File
 export type FlipbookViewMode = 'single' | 'spread'
 
 export interface FlipbookViewerProps {
-  src: PdfSource
+  /** PDF URL/File. Supply exactly one of src and svgDir. */
+  src?: PdfSource
+  /** Published SVG directory containing a generated flipbook.json. */
+  svgDir?: string
   showToolbar?: boolean
   showCover?: boolean
   startPage?: number
@@ -23,14 +26,14 @@ export interface FlipbookPageChange {
 }
 
 export interface FlipbookReady extends FlipbookPageChange {
-  /** Width divided by height of the first PDF page. */
+  /** Width divided by height of the first page. */
   aspectRatio: number
 }
 
 export interface FlipbookLoading {
   loading: boolean
   loaded: number
-  /** null means the server did not provide Content-Length. */
+  /** null means unknown; SVG reports loaded=0 and total=null. */
   total: number | null
 }
 

@@ -12,3 +12,5 @@ coverage
 *.pdf
 # Preserve upstream license bytes exactly.
 third-party/licenses/
+# Reproducible SVG output from scripts/create-svg-fixtures.mjs.
+playground/*/public/pamphlet/*.svg

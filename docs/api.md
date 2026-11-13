@@ -4,20 +4,21 @@ Import the component and its CSS explicitly. All public page numbers are **one-b
 
 ## Props
 
-| Prop               | Type             | Default             | Behavior / 内容                                                              |
-| ------------------ | ---------------- | ------------------- | ---------------------------------------------------------------------------- |
-| src                | string or File   | required            | PDFのURLまたはFile。変更すると旧PDFを破棄して読み直す。                      |
-| showToolbar        | boolean          | true                | 操作バーの表示。非表示でも公開メソッドとキーボードは使用可能。               |
-| showCover          | boolean          | true                | 最初のページを単独表示。末尾に相手ページがない場合も単独表示。               |
-| startPage          | number           | 1                   | 読み込み開始時のページ。読み込み後の変更はgoToPageと同等。                   |
-| flipDuration       | number           | 550                 | アニメーション時間（ms）。エンジンの最小値は100ms。                          |
-| width              | number or string | '100%'              | 全体幅。数値はpx、文字列はCSSの長さ。                                        |
-| height             | number or string | 'min(720px, 82svh)' | 操作バーを含む全体高さ。数値はpx。最小高さ240px。                            |
-| mobileBreakpoint   | number           | 640                 | コンテナーの幅がこのpx値未満なら単ページ。ウィンドウ全体の幅ではない。       |
-| keyboardNavigation | boolean          | true                | ビューアー自身にフォーカス中のキー操作。入力やボタン上のキー操作を奪わない。 |
-| showFullscreen     | boolean          | true                | Fullscreen API対応環境でボタンを表示。                                       |
+| Prop               | Type             | Default             | Behavior / 内容                                                                      |
+| ------------------ | ---------------- | ------------------- | ------------------------------------------------------------------------------------ |
+| src                | string or File   | undefined           | PDFのURLまたはFile。svgDirとどちらか片方を指定。変更すると旧資料を破棄して読み直す。 |
+| svgDir             | string           | undefined           | SVGフォルダーの公開URL。事前にVite/Nuxt連携で一覧を生成する。変更時は読み直す。      |
+| showToolbar        | boolean          | true                | 操作バーの表示。非表示でも公開メソッドとキーボードは使用可能。                       |
+| showCover          | boolean          | true                | 最初のページを単独表示。末尾に相手ページがない場合も単独表示。                       |
+| startPage          | number           | 1                   | 読み込み開始時のページ。読み込み後の変更はgoToPageと同等。                           |
+| flipDuration       | number           | 550                 | アニメーション時間（ms）。エンジンの最小値は100ms。                                  |
+| width              | number or string | '100%'              | 全体幅。数値はpx、文字列はCSSの長さ。                                                |
+| height             | number or string | 'min(720px, 82svh)' | 操作バーを含む全体高さ。数値はpx。最小高さ240px。                                    |
+| mobileBreakpoint   | number           | 640                 | コンテナーの幅がこのpx値未満なら単ページ。ウィンドウ全体の幅ではない。               |
+| keyboardNavigation | boolean          | true                | ビューアー自身にフォーカス中のキー操作。入力やボタン上のキー操作を奪わない。         |
+| showFullscreen     | boolean          | true                | Fullscreen API対応環境でボタンを表示。                                               |
 
-Page dimensions follow the first PDF page. Pages with a different aspect ratio fit inside the same paper area without stretching or cropping.
+Page dimensions follow the first page. Pages with a different aspect ratio fit inside the same paper area without stretching or cropping. See [SVG setup](svg.md) for the required directory integration. Specifying both src and svgDir, or neither, reports a load error.
 
 見開きでは「指定ページを含む見開き」へ移動し、その見開きの先頭ページを現在ページとして通知します。表紙ありで5を指定すると、4–5ページを表示し、pageは4になります。これはページ番号のずれではなく、見開きの表現です。
 
@@ -25,7 +26,7 @@ Page dimensions follow the first PDF page. Pages with a different aspect ratio f
 
 | Event       | Payload            | Timing                                                                     |
 | ----------- | ------------------ | -------------------------------------------------------------------------- |
-| ready       | FlipbookReady      | 最初の可視ページすべてをCanvasに描画した時。PDFの読み直しごとに1回。       |
+| ready       | FlipbookReady      | 最初の可視ページすべてを描画した時。資料の読み直しごとに1回。              |
 | page-change | FlipbookPageChange | 表示ページ・見開きが変化した時。初期配置とリサイズによる再配置時にも発火。 |
 | loading     | FlipbookLoading    | 読み込み開始、取得進捗、完了・失敗時。                                     |
 | error       | FlipbookError      | 読み込み・描画・全画面切替の失敗。                                         |
@@ -49,7 +50,7 @@ interface FlipbookLoading {
 // code: 'load' | 'render' | 'fullscreen', message: string, cause?: unknown
 ```
 
-The final loading=false event resets byte counters; it signals readiness, not a separate download measurement. A fullscreen error is nonfatal and does not close the document. Loading/rendering errors display a retry UI.
+The final loading=false event resets byte counters; it signals readiness, not a separate download measurement. SVG reports loaded=0 and total=null throughout; it does not estimate byte progress. A fullscreen error is nonfatal and does not close the document. Loading/rendering errors display a retry UI.
 
 ## Exposed methods
 
@@ -71,7 +72,7 @@ const viewer = ref<FlipbookViewerExpose>()
 - nextPage(): next spread on desktop, next page in single-page mode.
 - prevPage(): previous spread/page.
 - goToPage(page): immediately displays the requested page or containing spread. Out-of-range numbers are clamped; nonfinite numbers become1; fractions are rounded down.
-- reload(): Promise<void>; reloads the current source. Resolves after loading and layout setup; listen for ready to know that visible canvases have finished rendering. Errors are emitted and shown instead of rejecting this promise.
+- reload(): Promise<void>; reloads the current source. Resolves after loading and layout setup; listen for ready to know that visible pages have finished rendering. Errors are emitted and shown instead of rejecting this promise.
 
 Navigation before readiness or during an active flip is ignored. Repeated calls do not queue animations.
 
@@ -84,7 +85,7 @@ Focus the viewer with Tab or programmatically.
 - Home / End: first / last.
 - Form fields, buttons, links, editable regions, and modified shortcuts retain native behavior.
 
-The controls are labeled and keyboard accessible. Canvas content has a page label but no PDF text layer. Provide an original PDF link or HTML alternative for access to the document's full text.
+The controls are labeled and keyboard accessible. Canvas/SVG image content has a page label but no selectable text layer. Provide an original document link or HTML alternative for access to the document's full text.
 
 ## Local files
 

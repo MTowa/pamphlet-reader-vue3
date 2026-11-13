@@ -3,11 +3,7 @@ import type { PDFDocumentLoadingTask, PDFDocumentProxy, RenderTask } from 'pdfjs
 import InlinePdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker&inline'
 import { EmbeddedBinaryDataFactory } from './embeddedAssets'
 import type { PdfSource } from '../types'
-
-export interface RenderedPage {
-  canvas: HTMLCanvasElement
-  release(): void
-}
+import type { RenderedPage } from '../rendering/types'
 
 /** One worker per document. Loaded only inside the browser after mount. */
 export class PdfDocumentSession {
@@ -74,7 +70,7 @@ export class PdfDocumentSession {
       await task.promise
       if (this.disposed || signal.aborted) throw new DOMException('Cancelled', 'AbortError')
       return {
-        canvas,
+        element: canvas,
         release: () => {
           canvas.width = 0
           canvas.height = 0

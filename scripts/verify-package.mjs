@@ -64,6 +64,11 @@ for (const required of [
   'dist/style.css',
   'LICENSE',
   'THIRD_PARTY_NOTICES.md',
+  'tooling/vite.mjs',
+  'tooling/nuxt.mjs',
+  'tooling/directories.mjs',
+  'tooling/vite.d.mts',
+  'tooling/nuxt.d.mts',
   'dist/licenses/manifest.json',
   'dist/licenses/bundled-dependencies.json',
   ...licenseManifest.licenses.map((entry) => 'dist/licenses/' + entry.file),
@@ -79,7 +84,9 @@ for (const app of ['vue-app', 'nuxt-app']) {
   await cp(original, destination, {
     recursive: true,
     filter: (source) =>
-      !['node_modules', 'dist', '.nuxt', '.output'].includes(path.basename(source)),
+      !['node_modules', 'dist', '.nuxt', '.output', 'flipbook.json'].includes(
+        path.basename(source),
+      ),
   })
   const deps = { [libManifest.name]: 'file:' + tarball, vue: manifest.devDependencies.vue }
   const dev = {
@@ -150,6 +157,9 @@ await writeFile(path.join(artifacts, 'package-verification.json'), JSON.stringif
 run(process.execPath, [path.join(root, 'node_modules/@playwright/test/cli.js'), 'test'], root, {
   FLIPBOOK_CONSUMER_ROOT: consumers,
   CI: '1',
+})
+run(process.execPath, [path.join(root, 'scripts/verify-svg-dev.mjs')], root, {
+  FLIPBOOK_CONSUMER_ROOT: consumers,
 })
 report.verified = true
 await writeFile(path.join(artifacts, 'package-verification.json'), JSON.stringify(report, null, 2))
