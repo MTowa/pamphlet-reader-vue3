@@ -1,29 +1,16 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-import codeFrame from '../assets/code-frame.svg'
-import codeSurface from '../assets/code-surface.svg'
+import { onBeforeUnmount, ref } from 'vue'
 import { ui } from '../i18n'
 
 const props = withDefaults(
   defineProps<{ code: string; label: string; appearance?: 'hero' | 'plain' }>(),
   { appearance: 'hero' },
 )
-const codePanel = ref<HTMLElement>()
 const codeText = ref<HTMLElement>()
-const artworkScale = ref(1)
 const copyStatus = ref<'' | 'copied' | 'copyFailed'>('')
-let observer: ResizeObserver | undefined
 let resetTimer: ReturnType<typeof setTimeout> | undefined
 
-onMounted(() => {
-  // Keep the Figma artwork at its original dimensions and scale its wrapper.
-  observer = new ResizeObserver(([entry]) => {
-    if (entry) artworkScale.value = entry.contentRect.width / 800
-  })
-  if (codePanel.value && props.appearance === 'hero') observer.observe(codePanel.value)
-})
 onBeforeUnmount(() => {
-  observer?.disconnect()
   clearTimeout(resetTimer)
 })
 
@@ -54,18 +41,29 @@ async function copyCode() {
     role="group"
     :aria-label="label"
   >
-    <div ref="codePanel" class="code-panel">
-      <div
-        v-if="appearance === 'hero'"
-        class="code-artwork"
-        :style="{ transform: 'scaleX(' + artworkScale + ')' }"
-        aria-hidden="true"
-      >
-        <img :src="codeFrame" alt="" width="800" height="150" />
-        <img class="code-surface" :src="codeSurface" alt="" width="750" height="85" />
+    <div class="code-panel">
+      <div class="code-header">
+        <span class="code-language">
+          <svg v-if="appearance === 'hero'" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="m4 5 5 5-5 5m8 0h4" />
+          </svg>
+          {{ appearance === 'hero' ? 'pnpm' : 'Vue' }}
+        </span>
+        <button class="copy-button" type="button" @click="copyCode">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path v-if="copyStatus === 'copied'" d="m4 10 4 4 8-8" />
+            <template v-else>
+              <rect x="7" y="7" width="10" height="10" rx="2" />
+              <path d="M12 4V3H3v9h1" />
+            </template>
+          </svg>
+          {{ ui.copy }}
+        </button>
       </div>
-      <button class="copy-button" type="button" @click="copyCode">{{ ui.copy }}</button>
-      <pre><code ref="codeText">{{ code }}</code></pre>
+      <div class="code-body">
+        <span v-if="appearance === 'hero'" class="command-prompt" aria-hidden="true">$</span>
+        <pre><code ref="codeText">{{ code }}</code></pre>
+      </div>
     </div>
     <p class="copy-status" role="status">{{ copyStatus ? ui[copyStatus] : '' }}</p>
   </div>

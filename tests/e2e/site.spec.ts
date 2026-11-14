@@ -85,6 +85,13 @@ test('keeps copy buttons inside their frames in both languages at narrow widths'
   const widths = isMobile ? [320, 390] : [768, 1440]
   for (const lang of ['ja', 'en']) {
     await page.goto(siteURL + '?lang=' + lang)
+    await expect(page).toHaveTitle('vue-leafbook')
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('vue-leafbook')
+    const favicon = await page.locator('link[rel="icon"]').getAttribute('href')
+    expect(favicon).toBe('/demo/favicon.svg')
+    const iconResponse = await page.request.get(new URL(favicon!, siteURL).href)
+    expect(iconResponse.ok()).toBe(true)
+    expect(iconResponse.headers()['content-type']).toContain('image/svg+xml')
     await expect(page.locator('.vfb')).toHaveAttribute('aria-busy', 'false')
     for (const width of widths) {
       await page.setViewportSize({ width, height: 1000 })
@@ -93,15 +100,11 @@ test('keeps copy buttons inside their frames in both languages at narrow widths'
         width < 640 ? 'single' : 'spread',
       )
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
-      for (const [selector, naturalWidth] of [
-        ['.github-mark', 98],
-        ['.code-artwork > img:first-child', 800],
-        ['.code-surface', 750],
-      ] as const) {
-        await expect
-          .poll(() => page.locator(selector).evaluate((img: HTMLImageElement) => img.naturalWidth))
-          .toBe(naturalWidth)
-      }
+      await expect
+        .poll(() =>
+          page.locator('.github-mark').evaluate((img: HTMLImageElement) => img.naturalWidth),
+        )
+        .toBe(98)
       for (const panel of await page.locator('.code-panel').all()) {
         await panel.evaluate((element) =>
           Promise.all(element.getAnimations().map((animation) => animation.finished)),

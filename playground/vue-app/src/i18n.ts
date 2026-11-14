@@ -1,12 +1,12 @@
 import { computed, ref, watch } from 'vue'
 
 export type SiteLocale = 'ja' | 'en'
+export const siteName = 'vue-leafbook'
 export const locale = ref<SiteLocale>(
   new URLSearchParams(window.location.search).get('lang') === 'en' ? 'en' : 'ja',
 )
 const messages = {
   ja: {
-    title: 'Vue Flipbook — PDF・SVGパンフレットビューアー',
     description: 'Vue 3向けのPDF・SVGビューアー。',
     navigation: 'ページ内ナビゲーション',
     github: 'GitHubでソースコードを見る',
@@ -72,7 +72,6 @@ const messages = {
     states: { preparing: '準備中', loading: '読み込み中', ready: '読み込み完了', error: 'エラー' },
   },
   en: {
-    title: 'Vue Flipbook — PDF & SVG flipbook for Vue 3',
     description: 'A PDF and SVG viewer for Vue 3.',
     navigation: 'Page navigation',
     github: 'View source on GitHub',
@@ -144,7 +143,7 @@ watch(
   locale,
   () => {
     document.documentElement.lang = locale.value
-    document.title = ui.value.title
+    document.title = siteName
     document
       .querySelector('meta[name="description"]')
       ?.setAttribute('content', ui.value.description)

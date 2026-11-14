@@ -121,64 +121,89 @@ h2 {
   animation: enter 800ms 100ms both;
 }
 .code-example {
-  width: min(800px, calc(100% - 48px));
-  margin: 68px auto 0;
+  width: min(760px, calc(100% - 48px));
+  margin: 60px auto 0;
 }
 .code-panel {
   width: 100%;
-  height: 150px;
-  position: relative;
-  margin: 0;
   text-align: left;
-  filter: drop-shadow(0 28px 32px #3c4f2720);
+  border: 1px solid #365b45;
+  border-radius: 20px;
+  background: linear-gradient(115deg, #203c30, #182e25);
+  color: #f1f5e9;
+  box-shadow:
+    0 20px 50px -20px #193f3866,
+    inset 0 1px 0 #ffffff0d;
   animation: enter 850ms 220ms both;
 }
-.code-artwork {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 800px;
-  height: 150px;
-  transform-origin: top left;
-  pointer-events: none;
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 64px;
+  padding: 8px 14px 8px 28px;
+  border-bottom: 1px solid #c7e2a71f;
 }
-.code-artwork > img {
-  display: block;
+.code-language {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #bed0b6;
+  font-size: 13px;
+  font-weight: 500;
 }
-.code-surface {
-  position: absolute;
-  left: 25px;
-  top: 46px;
+.code-language svg,
+.copy-button svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .copy-button {
-  position: absolute;
-  right: 25px;
-  top: 1px;
-  height: 44px;
-  padding: 0 15px;
-  background: none;
-  border: 0;
-  font-size: 15px;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 12px;
+  color: inherit;
+  background: #c7e2a70a;
+  border: 1px solid #c7e2a724;
+  font-size: 13px;
   border-radius: 8px;
 }
 .copy-button:hover {
-  background: #00000009;
+  background: #c7e2a71c;
+}
+.copy-button:focus-visible {
+  outline-color: currentColor;
+}
+.code-body {
+  display: flex;
+  gap: 16px;
+  align-items: baseline;
+  padding: 28px;
+}
+.command-prompt {
+  color: #a8ca92;
+  user-select: none;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  font-size: 16px;
 }
 .code-panel pre {
-  position: absolute;
-  left: 50px;
-  right: 50px;
-  top: 46px;
-  height: 85px;
-  display: flex;
-  align-items: center;
+  min-width: 0;
+  flex: 1;
   margin: 0;
-  overflow-x: auto;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   line-height: 1.8;
-  font-size: 19px;
-  color: #233b2f;
+  font-size: 16px;
 }
 .code-panel code {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
@@ -387,12 +412,6 @@ details[open] > summary {
 }
 .header-links a:hover {
   text-decoration: underline;
-}
-.title-vue {
-  color: #62835b;
-}
-.title-dot {
-  color: #8ea771;
 }
 .demo-link {
   display: inline-flex;
@@ -603,21 +622,6 @@ details[open] > summary {
   .hero-description {
     font-size: 20px;
   }
-  .code-example {
-    margin-top: 68px;
-  }
-  .copy-button {
-    top: 1px;
-    right: 16px;
-    font-size: 14px;
-  }
-  .code-panel pre {
-    left: 6.25%;
-    right: 6.25%;
-    top: 46px;
-    height: 85px;
-    font-size: clamp(12px, 2.35vw, 18px);
-  }
   .hero-backdrop {
     height: 880px;
   }
@@ -655,8 +659,8 @@ details[open] > summary {
     padding: 64px 0 96px;
   }
   .hero h1 {
-    font-size: clamp(44px, 10.8vw, 64px);
-    letter-spacing: -0.06em;
+    font-size: clamp(38px, 10vw, 60px);
+    letter-spacing: -0.055em;
   }
   .hero-description {
     margin-top: 26px;
@@ -673,7 +677,19 @@ details[open] > summary {
     width: calc(100% - 32px);
   }
   .code-panel {
-    filter: drop-shadow(0 15px 20px #3c4f271a);
+    border-radius: 16px;
+    box-shadow: 0 16px 32px -20px #193f3866;
+  }
+  .code-header {
+    min-height: 60px;
+    padding: 7px 10px 7px 20px;
+  }
+  .code-body {
+    padding: 22px 20px;
+    gap: 12px;
+  }
+  .code-panel pre {
+    font-size: 14px;
   }
   .copy-status {
     font-size: 12px;
@@ -825,22 +841,28 @@ details[open] > summary {
   margin: 26px 0 0;
 }
 .code-example-plain .code-panel {
-  height: auto;
   border: 1px solid #d5ddcd;
   border-radius: 16px;
-  background: #eaf0e3;
-  filter: none;
+  background: #edf1e8;
+  color: #233b2f;
+  box-shadow: none;
   animation: none;
 }
-.code-example-plain pre {
-  position: static;
-  display: block;
-  height: auto;
-  padding: 52px 24px 24px;
-  font-size: 13px;
+.code-example-plain .code-header {
+  border-color: #d5ddcd;
+  padding-left: 24px;
+}
+.code-example-plain .code-language {
+  color: #4c6250;
 }
 .code-example-plain .copy-button {
-  right: 12px;
+  border-color: #c3d0b8;
+}
+.code-example-plain .code-body {
+  padding: 24px;
+}
+.code-example-plain pre {
+  font-size: 13px;
 }
 .author-link {
   margin-left: auto;
@@ -853,8 +875,13 @@ details[open] > summary {
     width: 100%;
     margin-top: 24px;
   }
+  .code-example-plain .code-header {
+    padding-left: 16px;
+  }
+  .code-example-plain .code-body {
+    padding: 20px 16px;
+  }
   .code-example-plain pre {
-    padding: 48px 16px 20px;
     font-size: 12px;
   }
   .author-link {

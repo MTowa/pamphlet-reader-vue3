@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 import ReaderDemo from './components/ReaderDemo.vue'
 import CopyCode from './components/CopyCode.vue'
 import githubMark from './assets/github-mark.svg'
-import { locale, ui, toggleLocale, usageCode } from './i18n'
+import { locale, siteName, ui, toggleLocale, usageCode } from './i18n'
 
 const repo = 'https://github.com/MTowa/pamphlet-reader-vue3'
 const snippet = computed(() => usageCode(locale.value))
@@ -38,11 +38,7 @@ const motionPaused = ref(false)
     </header>
     <main>
       <section class="hero" aria-labelledby="site-title">
-        <h1 id="site-title">
-          <span class="title-vue">Vue</span> Flipbook<span class="title-dot" aria-hidden="true"
-            >.</span
-          >
-        </h1>
+        <h1 id="site-title">{{ siteName }}</h1>
         <p class="hero-description">{{ ui.description }}</p>
         <a class="demo-link" href="#demo">{{ ui.tryDemo }} <span aria-hidden="true">↓</span></a>
         <CopyCode :code="installCommand" :label="ui.installCode" />
