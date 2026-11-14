@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import path from 'node:path'
 
-const vueURL = 'http://127.0.0.1:4173/demo/'
+const vueURL = 'http://127.0.0.1:4173/demo/?testing=true'
 const nuxtURL = 'http://127.0.0.1:4174/nuxt-demo/'
 const viewer = (page: Page) => page.getByRole('region', { name: 'PDFパンフレットビューアー' })
 const number = (page: Page) => page.getByRole('spinbutton', { name: '移動先のページ番号' })

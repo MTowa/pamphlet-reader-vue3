@@ -2,9 +2,11 @@
 import { computed, ref, watch } from 'vue'
 import { useFlipbook } from '../composables/useFlipbook'
 import { cssSize } from '../utils/pages'
+import { viewerMessages, viewerError } from '../i18n'
 import type { FlipbookViewerEmits, FlipbookViewerExpose, FlipbookViewerProps } from '../types'
 
 const props = withDefaults(defineProps<FlipbookViewerProps>(), {
+  locale: 'ja',
   showToolbar: true,
   showCover: true,
   startPage: 1,
@@ -42,6 +44,10 @@ const {
   error: (error) => emit('error', error),
 })
 const jumpPage = ref(1)
+const text = computed(() => viewerMessages(props.locale))
+const failureMessage = computed(() =>
+  failure.value ? viewerError(failure.value.code, !!props.svgDir, props.locale) : '',
+)
 watch(currentPage, (page) => {
   jumpPage.value = page
 })
@@ -57,10 +63,11 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
   <section
     ref="root"
     class="vfb"
+    :lang="locale"
     :style="{ width: cssSize(width), height: cssSize(height) }"
     :data-mode="mode"
     :aria-busy="loading"
-    :aria-label="svgDir ? 'SVGパンフレットビューアー' : 'PDFパンフレットビューアー'"
+    :aria-label="svgDir ? text.svgViewer : text.pdfViewer"
     :data-source="svgDir ? 'svg' : 'pdf'"
     tabindex="0"
     @keydown="onKeydown"
@@ -69,20 +76,20 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
       <div ref="stage" class="vfb__stage" :aria-hidden="loading || !!failure" />
       <div v-if="failure" class="vfb__message" role="alert">
         <span class="vfb__message-icon" aria-hidden="true">!</span>
-        <p>{{ failure.message }}</p>
-        <button type="button" class="vfb__retry" @click="reload">もう一度読み込む</button>
+        <p>{{ failureMessage }}</p>
+        <button type="button" class="vfb__retry" @click="reload">{{ text.retry }}</button>
       </div>
       <div v-else-if="loading" class="vfb__message" role="status">
         <span class="vfb__spinner" aria-hidden="true" />
-        <p>{{ svgDir ? 'SVG' : 'PDF' }}を読み込んでいます…</p>
+        <p>{{ svgDir ? text.svgLoading : text.pdfLoading }}</p>
       </div>
     </div>
-    <div v-if="showToolbar" class="vfb__toolbar" role="group" aria-label="ページ操作">
+    <div v-if="showToolbar" class="vfb__toolbar" role="group" :aria-label="text.controls">
       <button
         type="button"
         class="vfb__button"
-        aria-label="前のページ"
-        title="前のページ"
+        :aria-label="text.previous"
+        :title="text.previous"
         :disabled="!canPrevious || !!failure"
         @click="prevPage"
       >
@@ -95,36 +102,36 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
           min="1"
           :max="pageCount || 1"
           :disabled="loading || !!failure"
-          aria-label="移動先のページ番号"
+          :aria-label="text.pageInput"
         />
         <span class="vfb__total">/ {{ pageCount || '—' }}</span>
         <button
           class="vfb__jump-button"
           type="submit"
           :disabled="loading || !!failure"
-          aria-label="指定ページへ移動"
+          :aria-label="text.jump"
         >
-          移動
+          {{ text.go }}
         </button>
       </form>
       <button
         type="button"
         class="vfb__button"
-        aria-label="次のページ"
-        title="次のページ"
+        :aria-label="text.next"
+        :title="text.next"
         :disabled="!canNext || !!failure"
         @click="nextPage"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
       </button>
       <span class="vfb__divider" aria-hidden="true" />
-      <span class="vfb__mode">{{ mode === 'single' ? '単ページ' : '見開き' }}</span>
+      <span class="vfb__mode">{{ mode === 'single' ? text.single : text.spread }}</span>
       <button
         v-if="showFullscreen && fullscreenSupported"
         class="vfb__button"
         type="button"
-        :aria-label="fullscreen ? '全画面表示を終了' : '全画面表示'"
-        :title="fullscreen ? '全画面表示を終了' : '全画面表示'"
+        :aria-label="fullscreen ? text.exitFullscreen : text.fullscreen"
+        :title="fullscreen ? text.exitFullscreen : text.fullscreen"
         @click="toggleFullscreen"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -133,7 +140,7 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
       </button>
     </div>
     <span class="vfb__sr-only" aria-live="polite" aria-atomic="true">{{
-      pageCount && !loading ? `${range} / ${pageCount}ページ` : ''
+      pageCount && !loading ? text.range(range, pageCount) : ''
     }}</span>
   </section>
 </template>

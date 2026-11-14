@@ -5,6 +5,7 @@ import type { SvgDocumentSession } from '../svg/SvgDocumentSession'
 import { PageRenderQueue } from '../rendering/PageRenderQueue'
 import { clampPage, renderWindow, visiblePages } from '../utils/pages'
 import { FlipbookError } from '../types'
+import { viewerMessages, viewerError } from '../i18n'
 import type {
   FlipbookLoading,
   FlipbookPageChange,
@@ -97,12 +98,7 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
   }
 
   function reportError(code: 'load' | 'render', cause: unknown) {
-    const message =
-      code === 'load'
-        ? props.svgDir
-          ? 'SVGを読み込めませんでした。フォルダーのパスとページ一覧の生成設定を確認してください。'
-          : 'PDFを読み込めませんでした。ファイルとURL、配信元のアクセス設定を確認してください。'
-        : 'ページを描画できませんでした。もう一度読み込んでください。'
+    const message = viewerError(code, !!props.svgDir, props.locale)
     failure.value = new FlipbookError(code, message, cause)
     progress(false)
     callbacks.error(failure.value)
@@ -148,7 +144,10 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
       page.className = 'vfb__page'
       page.dataset.page = String(index + 1)
       page.setAttribute('role', 'img')
-      page.setAttribute('aria-label', `${props.svgDir ? 'SVG' : 'PDF'} ${index + 1}ページ`)
+      page.setAttribute(
+        'aria-label',
+        viewerMessages(props.locale).page(props.svgDir ? 'SVG' : 'PDF', index + 1),
+      )
       const paper = document.createElement('div')
       paper.className = 'vfb__paper'
       const placeholder = document.createElement('span')
@@ -315,7 +314,13 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
       if (fullscreen.value) await document.exitFullscreen()
       else await root.value?.requestFullscreen()
     } catch (cause) {
-      callbacks.error(new FlipbookError('fullscreen', '全画面表示を開始できませんでした。', cause))
+      callbacks.error(
+        new FlipbookError(
+          'fullscreen',
+          viewerError('fullscreen', !!props.svgDir, props.locale),
+          cause,
+        ),
+      )
     }
   }
 
@@ -338,6 +343,16 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
     (page) => goToPage(page),
   )
   watch(() => [props.showCover, props.mobileBreakpoint, props.flipDuration], scheduleLayout)
+  watch(
+    () => props.locale,
+    () => {
+      for (const [index, page] of containers.entries())
+        page.setAttribute(
+          'aria-label',
+          viewerMessages(props.locale).page(props.svgDir ? 'SVG' : 'PDF', index + 1),
+        )
+    },
+  )
   onBeforeUnmount(() => {
     mounted = false
     epoch++

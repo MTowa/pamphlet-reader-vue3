@@ -60,6 +60,34 @@ afterEach(() => {
 })
 
 describe('component API', () => {
+  it('changes language without reloading the document or resetting the current page', async () => {
+    const wrapper = mount(FlipbookViewer, { props: { src: '/sample.pdf', startPage: 5 } })
+    await flushPromises()
+    const canvas = wrapper.find('canvas').element
+    await wrapper.setProps({ locale: 'en' })
+    expect(wrapper.attributes('lang')).toBe('en')
+    expect(wrapper.find('[aria-label="Next page"]').exists()).toBe(true)
+    expect(wrapper.find('[data-page="4"]').attributes('aria-label')).toBe('PDF page 4')
+    expect(wrapper.find('input').element.value).toBe('4')
+    expect(wrapper.find('canvas').element).toBe(canvas)
+    expect(wrapper.emitted('ready')).toHaveLength(1)
+    expect(mocks.destroy).not.toHaveBeenCalled()
+    await wrapper.setProps({ locale: 'ja' })
+    expect(wrapper.find('[aria-label="次のページ"]').exists()).toBe(true)
+    wrapper.unmount()
+  })
+  it('translates an existing failure without starting another request', async () => {
+    const wrapper = mount(FlipbookViewer, { props: { locale: 'en' } })
+    await flushPromises()
+    expect(wrapper.find('[role="alert"]').text()).toContain('Could not load the PDF')
+    expect(wrapper.emitted('error')?.[0]?.[0]).toMatchObject({
+      message: expect.stringContaining('Could not load'),
+    })
+    await wrapper.setProps({ locale: 'ja' })
+    expect(wrapper.find('[role="alert"]').text()).toContain('PDFを読み込めませんでした')
+    expect(wrapper.emitted('error')).toHaveLength(1)
+    wrapper.unmount()
+  })
   it.each([{}, { src: '/sample.pdf', svgDir: '/pages/' }])(
     'rejects ambiguous or missing document sources: %j',
     async (props) => {
