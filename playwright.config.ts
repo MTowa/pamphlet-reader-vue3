@@ -4,6 +4,7 @@ import path from 'node:path'
 const consumers = process.env.FLIPBOOK_CONSUMER_ROOT
 const vue = consumers ? path.join(consumers, 'vue-app') : path.resolve('playground/vue-app')
 const nuxt = consumers ? path.join(consumers, 'nuxt-app') : path.resolve('playground/nuxt-app')
+const vite = consumers ? 'node_modules/vite/bin/vite.js' : '../../node_modules/vite/bin/vite.js'
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: true,
@@ -21,8 +22,7 @@ export default defineConfig({
   ],
   webServer: [
     {
-      command:
-        'node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173 --strictPort',
+      command: `node ${vite} preview --host 127.0.0.1 --port 4173 --strictPort`,
       cwd: vue,
       url: 'http://127.0.0.1:4173/demo/',
       reuseExistingServer: !process.env.CI,

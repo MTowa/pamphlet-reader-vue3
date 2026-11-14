@@ -5,4 +5,8 @@ import { svgDirectories } from '@your-org/vue-flipbook/vite'
 export default defineConfig({
   plugins: [vue(), svgDirectories({ directories: ['pamphlet'] })],
   base: '/demo/',
+  build: {
+    assetsInlineLimit: 0,
+    license: { fileName: 'licenses/application-dependencies.json' },
+  },
 })

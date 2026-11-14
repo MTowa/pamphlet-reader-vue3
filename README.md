@@ -19,7 +19,7 @@ import '@your-org/vue-flipbook/style.css'
 </template>
 ```
 
-No PDF-to-image conversion, CDN, manual worker configuration, backend, Tailwind, or Nuxt dependency is required. CSS is an explicit import for predictable SSR and bundler behavior. Public page numbers start at **1**.
+No PDF-to-image conversion, CDN, manual worker configuration, backend, Tailwind, or Nuxt dependency is required. CSS is an explicit import for predictable SSR and bundler behavior. Public page numbers start at **1**. Set `locale="en"` for English controls, messages and accessible labels (default: Japanese). Language changes preserve the open document and current page.
 
 For pre-generated SVG pages, register the public folder once with the Vite plugin or Nuxt module, then use `<FlipbookViewer svg-dir="/pamphlet/" />`. Page order is generated automatically from filenames; SVG-only viewers do not load PDF.js or a PDF worker. See [SVGフォルダーの設定と使い方](docs/svg.md).
 
@@ -37,6 +37,8 @@ pnpm dev:nuxt
 ```
 
 Original, redistributable PDF and SVG fixtures are included. Regenerate them with `pnpm fixtures`. The playground's 「SVGフォルダー」 button selects the SVG sample; `?format=svg` opens it directly.
+
+The Vue playground also serves as the introduction site. Development-only controls are available with `?testing=true`. See [紹介サイトの編集・GitHub Pages公開](docs/site.md).
 
 ## Install the built package / ビルド済みパッケージを使う
 

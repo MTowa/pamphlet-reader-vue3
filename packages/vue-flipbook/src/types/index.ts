@@ -6,6 +6,8 @@ export interface FlipbookViewerProps {
   src?: PdfSource
   /** Published SVG directory containing a generated flipbook.json. */
   svgDir?: string
+  /** Language of controls, status messages and accessible labels. */
+  locale?: 'ja' | 'en'
   showToolbar?: boolean
   showCover?: boolean
   startPage?: number

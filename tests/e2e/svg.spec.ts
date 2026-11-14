@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 
-const vueURL = 'http://127.0.0.1:4173/demo/'
+const vueURL = 'http://127.0.0.1:4173/demo/?testing=true'
 const nuxtURL = 'http://127.0.0.1:4174/nuxt-demo/'
 const viewer = (page: Page) => page.getByRole('region', { name: 'SVGパンフレットビューアー' })
 const number = (page: Page) => page.getByRole('spinbutton', { name: '移動先のページ番号' })
@@ -40,11 +40,11 @@ for (const [app, url] of [
   }) => {
     const seen = track(page)
     if (app === 'Nuxt') {
-      const response = await request.get(url + '?format=svg')
+      const response = await request.get(url + (url.includes('?') ? '&' : '?') + 'format=svg')
       expect(response.status()).toBe(200)
       expect(await response.text()).toContain('SVGを読み込んでいます')
     }
-    await page.goto(url + '?format=svg')
+    await page.goto(url + (url.includes('?') ? '&' : '?') + 'format=svg')
     await ready(page)
     await expect(viewer(page)).toHaveAttribute('data-mode', isMobile ? 'single' : 'spread')
     await expect(page.locator('.vfb__total')).toHaveText('/ 6')
@@ -77,7 +77,7 @@ for (const [app, url] of [
 }
 
 test('SVG supports drag/touch, fullscreen and responsive resizing', async ({ page, isMobile }) => {
-  await page.goto(vueURL + '?format=svg')
+  await page.goto(vueURL + '&format=svg')
   await ready(page)
   await page.locator('.vfb__book').scrollIntoViewIfNeeded()
   const box = (await page.locator('[data-page="1"]').boundingBox())!
@@ -117,9 +117,9 @@ test('SVG supports drag/touch, fullscreen and responsive resizing', async ({ pag
 
 test('switches SVG to PDF and back, releases the worker, and remounts', async ({ page }) => {
   const seen = track(page)
-  await page.goto(vueURL + '?format=svg')
+  await page.goto(vueURL + '&format=svg')
   await ready(page)
-  await page.getByRole('button', { name: /Fieldnotes オリジナルサンプル/ }).click()
+  await page.getByRole('button', { name: 'サンプルPDF' }).click()
   await expect(page.locator('.vfb canvas').first()).toBeVisible()
   await expect(page.locator('.vfb')).toHaveAttribute('aria-busy', 'false')
   expect(seen.workers.length).toBe(1)
@@ -139,7 +139,7 @@ for (const failingFile of ['flipbook.json', '001.svg', '002.svg']) {
   test(`reports missing ${failingFile} and recovers on retry`, async ({ page }) => {
     const pattern = '**/pamphlet/' + failingFile
     await page.route(pattern, (route) => route.fulfill({ status: 404, body: 'missing' }))
-    await page.goto(vueURL + '?format=svg')
+    await page.goto(vueURL + '&format=svg')
     await expect(page.getByRole('alert')).toContainText(
       failingFile === '002.svg' ? 'ページを描画できませんでした' : 'SVGを読み込めませんでした',
     )
@@ -158,7 +158,7 @@ test('discards a delayed SVG index after switching to a PDF', async ({ page }) =
     await delayed
     await route.fulfill({ json: { version: 1, pages: ['001.svg'] } }).catch(() => {})
   })
-  await page.goto(vueURL + '?format=svg')
+  await page.goto(vueURL + '&format=svg')
   await page.getByText('検証用コントロール', { exact: true }).click()
   await page.getByRole('button', { name: '別のPDF（3ページ）' }).click()
   await expect(page.locator('.vfb canvas').first()).toBeVisible()
@@ -185,7 +185,7 @@ test('unmounts while the first SVG image is still loading', async ({ page }) => 
       })
       .catch(() => {})
   })
-  await page.goto(vueURL + '?format=svg')
+  await page.goto(vueURL + '&format=svg')
   await expect.poll(() => seen.requests.some((url) => url.endsWith('/001.svg'))).toBe(true)
   await page.getByText('検証用コントロール', { exact: true }).click()
   await page.getByRole('button', { name: '取り外す', exact: true }).click()
@@ -205,7 +205,7 @@ test('records cold PDF and SVG transfer and first-ready timings for the same sam
   for (const format of ['pdf', 'svg']) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1100 } })
     const page = await context.newPage()
-    await page.goto(vueURL + '?format=' + format)
+    await page.goto(vueURL + '&format=' + format)
     await expect(page.locator('.vfb')).toHaveAttribute('aria-busy', 'false')
     await expect(page.getByRole('alert')).toHaveCount(0)
     await page.waitForTimeout(300)

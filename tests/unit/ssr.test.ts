@@ -4,6 +4,14 @@ import { renderToString } from 'vue/server-renderer'
 import FlipbookViewer from '../../packages/vue-flipbook/src/components/FlipbookViewer.vue'
 
 describe('SSR', () => {
+  it('renders English status and controls on the server', async () => {
+    const html = await renderToString(
+      createSSRApp(FlipbookViewer, { src: '/sample.pdf', locale: 'en' }),
+    )
+    expect(html).toContain('Loading PDF')
+    expect(html).toContain('lang="en"')
+    expect(html).toContain('Next page')
+  })
   it('renders an SVG placeholder without accessing browser or filesystem APIs', async () => {
     const html = await renderToString(createSSRApp(FlipbookViewer, { svgDir: '/pamphlet/' }))
     expect(html).toContain('SVGを読み込んでいます')

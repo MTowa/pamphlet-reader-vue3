@@ -8,6 +8,7 @@ Import the component and its CSS explicitly. All public page numbers are **one-b
 | ------------------ | ---------------- | ------------------- | ------------------------------------------------------------------------------------ |
 | src                | string or File   | undefined           | PDFのURLまたはFile。svgDirとどちらか片方を指定。変更すると旧資料を破棄して読み直す。 |
 | svgDir             | string           | undefined           | SVGフォルダーの公開URL。事前にVite/Nuxt連携で一覧を生成する。変更時は読み直す。      |
+| locale             | 'ja' or 'en'     | 'ja'                | 操作・読み込み・エラー・読み上げラベルの言語。変更しても資料やページ位置は維持。     |
 | showToolbar        | boolean          | true                | 操作バーの表示。非表示でも公開メソッドとキーボードは使用可能。                       |
 | showCover          | boolean          | true                | 最初のページを単独表示。末尾に相手ページがない場合も単独表示。                       |
 | startPage          | number           | 1                   | 読み込み開始時のページ。読み込み後の変更はgoToPageと同等。                           |
