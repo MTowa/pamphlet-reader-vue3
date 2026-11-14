@@ -161,8 +161,8 @@ export function toggleLocale() {
 
 export function usageCode(language: SiteLocale) {
   return `<script setup>
-import { FlipbookViewer } from '@your-org/vue-flipbook'
-import '@your-org/vue-flipbook/style.css'
+import { FlipbookViewer } from 'vue-leafbook'
+import 'vue-leafbook/style.css'
 </script>
 
 <template>

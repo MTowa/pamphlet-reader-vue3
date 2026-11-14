@@ -1,6 +1,6 @@
 # Third-party notices
 
-The original code of @your-org/vue-flipbook is MIT licensed, Copyright (c) 2026 MTowa.
+The original code of vue-leafbook is MIT licensed, Copyright (c) 2026 MTowa.
 Third-party code, fonts and data retain their respective copyrights and licenses.
 The root MIT license does not replace the terms below.
 

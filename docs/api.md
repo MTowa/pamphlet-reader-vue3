@@ -58,9 +58,9 @@ The final loading=false event resets byte counters; it signals readiness, not a 
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FlipbookViewer } from '@your-org/vue-flipbook'
-import type { FlipbookViewerExpose } from '@your-org/vue-flipbook'
-import '@your-org/vue-flipbook/style.css'
+import { FlipbookViewer } from 'vue-leafbook'
+import type { FlipbookViewerExpose } from 'vue-leafbook'
+import 'vue-leafbook/style.css'
 
 const viewer = ref<FlipbookViewerExpose>()
 </script>
@@ -92,7 +92,7 @@ The controls are labeled and keyboard accessible. Canvas/SVG image content has a
 
 ```ts
 import { shallowRef } from 'vue'
-import type { PdfSource } from '@your-org/vue-flipbook'
+import type { PdfSource } from 'vue-leafbook'
 
 const src = shallowRef<PdfSource>('/pamphlet.pdf')
 function onFile(event: Event) {

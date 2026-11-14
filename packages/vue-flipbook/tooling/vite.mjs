@@ -4,7 +4,7 @@ import { svgDirectoryGenerator } from './directories.mjs'
 export function svgDirectories(options) {
   let generator, close
   return {
-    name: 'vue-flipbook-svg-directories',
+    name: 'vue-leafbook-svg-directories',
     async configResolved(config) {
       if (!config.publicDir)
         throw new Error(

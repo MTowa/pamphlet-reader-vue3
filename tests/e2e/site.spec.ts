@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 const siteURL = 'http://127.0.0.1:4173/demo/'
-const installCommand = 'pnpm add ./your-org-vue-flipbook-0.1.0.tgz'
+const installCommand = 'pnpm add ./vue-leafbook-0.1.0.tgz'
 
 test('pauses the background motion and respects reduced-motion preferences', async ({ page }) => {
   await page.goto(siteURL)

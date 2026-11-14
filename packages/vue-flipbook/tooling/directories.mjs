@@ -3,7 +3,9 @@ import { lstat, readFile, realpath, readdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 export const manifestName = 'flipbook.json'
-const generator = '@your-org/vue-flipbook'
+const generator = 'vue-leafbook'
+// Development builds before the rename generated the same manifest format.
+const ownedGenerators = new Set([generator, '@your-org/vue-flipbook'])
 const collator = new Intl.Collator('en', { numeric: true, sensitivity: 'variant' })
 export const comparePages = (a, b) => collator.compare(a, b) || (a < b ? -1 : a > b ? 1 : 0)
 
@@ -57,7 +59,7 @@ export async function svgDirectoryGenerator(publicDir, options) {
       if (previous !== undefined) {
         let owned = false
         try {
-          owned = JSON.parse(previous).generator === generator
+          owned = ownedGenerators.has(JSON.parse(previous).generator)
         } catch {
           /* Keep user files. */
         }

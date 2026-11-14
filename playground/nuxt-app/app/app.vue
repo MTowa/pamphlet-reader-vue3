@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { FlipbookViewer } from '@your-org/vue-flipbook'
-import type { FlipbookReady } from '@your-org/vue-flipbook'
+import { FlipbookViewer } from 'vue-leafbook'
+import type { FlipbookReady } from 'vue-leafbook'
 import { useRoute, useRuntimeConfig } from '#imports'
 const base = useRuntimeConfig().app.baseURL
 const format = ref(useRoute().query.format === 'svg' ? 'svg' : 'pdf')
@@ -15,7 +15,7 @@ function select(name: string) {
 
 <template>
   <main class="nuxt-demo">
-    <p class="eyebrow">VUE FLIPBOOK / NUXT 4</p>
+    <p class="eyebrow">vue-leafbook / Nuxt 4</p>
     <h1>Nuxtでも、PDFとSVGを一冊に。</h1>
     <p>SSRで読み込めるコンポーネント。SVG表示時はPDF.jsとWorkerを読み込みません。</p>
     <nav>

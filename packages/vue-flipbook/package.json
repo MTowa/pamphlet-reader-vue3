@@ -1,7 +1,7 @@
 {
-  "name": "@your-org/vue-flipbook",
+  "name": "vue-leafbook",
   "version": "0.1.0",
-  "description": "An SSR-safe Vue 3 PDF flipbook with lazy canvas rendering and automatic PDF.js workers.",
+  "description": "An SSR-safe Vue 3 PDF and SVG flipbook with lazy rendering and automatic PDF.js workers.",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -59,6 +59,7 @@
     "vue",
     "vue3",
     "pdf",
+    "svg",
     "flipbook",
     "nuxt",
     "pamphlet",

@@ -7,12 +7,12 @@
     "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
   },
   "scripts": {
-    "dev": "pnpm --filter @your-org/vue-flipbook build && pnpm --filter flipbook-vue-playground dev",
-    "dev:nuxt": "pnpm --filter @your-org/vue-flipbook build && pnpm --filter flipbook-nuxt-playground dev",
-    "build": "pnpm --filter @your-org/vue-flipbook build",
+    "dev": "pnpm --filter vue-leafbook build && pnpm --filter flipbook-vue-playground dev",
+    "dev:nuxt": "pnpm --filter vue-leafbook build && pnpm --filter flipbook-nuxt-playground dev",
+    "build": "pnpm --filter vue-leafbook build",
     "build:apps": "pnpm --filter flipbook-vue-playground build && pnpm --filter flipbook-nuxt-playground build",
     "build:site": "pnpm build && pnpm --filter flipbook-vue-playground build --base /pamphlet-reader-vue3/ && node scripts/site-notices.mjs",
-    "typecheck": "pnpm --filter @your-org/vue-flipbook typecheck && pnpm --filter flipbook-vue-playground typecheck && pnpm --filter flipbook-nuxt-playground typecheck",
+    "typecheck": "pnpm --filter vue-leafbook typecheck && pnpm --filter flipbook-vue-playground typecheck && pnpm --filter flipbook-nuxt-playground typecheck",
     "test": "vitest run",
     "test:licenses": "node --test tests/licenses/*.test.mjs",
     "test:tooling": "node --test tests/tooling/*.test.mjs",
