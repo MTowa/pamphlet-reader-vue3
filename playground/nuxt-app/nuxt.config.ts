@@ -1,10 +1,10 @@
 export default defineNuxtConfig({
   compatibilityDate: '2026-11-11',
   devtools: { enabled: false },
-  modules: [['@your-org/vue-flipbook/nuxt', { directories: ['pamphlet'] }]],
-  css: ['@your-org/vue-flipbook/style.css'],
+  modules: [['vue-leafbook/nuxt', { directories: ['pamphlet'] }]],
+  css: ['vue-leafbook/style.css'],
   app: {
     baseURL: '/nuxt-demo/',
-    head: { htmlAttrs: { lang: 'ja' }, title: 'Vue Flipbook — Nuxt 4' },
+    head: { htmlAttrs: { lang: 'ja' }, title: 'vue-leafbook — Nuxt 4' },
   },
 })

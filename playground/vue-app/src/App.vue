@@ -7,7 +7,7 @@ import { locale, siteName, ui, toggleLocale, usageCode } from './i18n'
 
 const repo = 'https://github.com/MTowa/pamphlet-reader-vue3'
 const snippet = computed(() => usageCode(locale.value))
-const installCommand = 'pnpm add ./your-org-vue-flipbook-0.1.0.tgz'
+const installCommand = 'pnpm add ./vue-leafbook-0.1.0.tgz'
 const motionPaused = ref(false)
 </script>
 

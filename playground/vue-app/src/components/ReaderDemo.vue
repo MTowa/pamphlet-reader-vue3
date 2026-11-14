@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef } from 'vue'
-import { FlipbookViewer } from '@your-org/vue-flipbook'
+import { FlipbookViewer } from 'vue-leafbook'
 import type {
   FlipbookReady,
   FlipbookPageChange,
   FlipbookViewerExpose,
   PdfSource,
-} from '@your-org/vue-flipbook'
-import '@your-org/vue-flipbook/style.css'
+} from 'vue-leafbook'
+import 'vue-leafbook/style.css'
 import { locale, ui } from '../i18n'
 
 const base = import.meta.env.BASE_URL

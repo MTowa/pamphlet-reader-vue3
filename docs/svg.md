@@ -62,7 +62,7 @@ Vueデモの配置先は `playground/vue-app/public/pamphlet/`、Nuxtデモで�
 // vite.config.ts
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { svgDirectories } from '@your-org/vue-flipbook/vite'
+import { svgDirectories } from 'vue-leafbook/vite'
 
 export default defineConfig({
   plugins: [vue(), svgDirectories({ directories: ['pamphlet'] })],
@@ -74,8 +74,8 @@ export default defineConfig({
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  css: ['@your-org/vue-flipbook/style.css'],
-  modules: [['@your-org/vue-flipbook/nuxt', { directories: ['pamphlet'] }]],
+  css: ['vue-leafbook/style.css'],
+  modules: [['vue-leafbook/nuxt', { directories: ['pamphlet'] }]],
 })
 ```
 
@@ -85,8 +85,8 @@ Nuxtでは上のモジュールを使います。Vite用プラグインを重ね
 
 ```vue
 <script setup lang="ts">
-import { FlipbookViewer } from '@your-org/vue-flipbook'
-import '@your-org/vue-flipbook/style.css'
+import { FlipbookViewer } from 'vue-leafbook'
+import 'vue-leafbook/style.css'
 </script>
 
 <template>

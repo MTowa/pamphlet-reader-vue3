@@ -13,7 +13,7 @@ await mkdir(artifacts, { recursive: true })
 const manifest = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'))
 const library = path.join(root, 'packages/vue-flipbook')
 const libManifest = JSON.parse(await readFile(path.join(library, 'package.json'), 'utf8'))
-const consumers = await mkdtemp(path.join(tmpdir(), 'vue-flipbook-consumers-'))
+const consumers = await mkdtemp(path.join(tmpdir(), 'vue-leafbook-consumers-'))
 let sequence = 0
 
 function run(command, args, cwd, extraEnv = {}) {

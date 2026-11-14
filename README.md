@@ -1,17 +1,17 @@
-# Vue Flipbook
+# vue-leafbook
 
 A reusable Vue 3 PDF and SVG flipbook. Supply a PDF URL/File or a directory of pre-generated SVG pages.
 
 Vue 3向けのパンフレットビューアーです。PDFまたは事前に用意したSVGのフォルダーを指定して、ページめくり・見開き・スマートフォンでの単ページ表示を利用できます。
 
-**Development preview / 開発版:** `@your-org/vue-flipbook` is a placeholder package name. This package has not been published to npm. Build and install a local tarball using the steps below.
+**Development preview / 開発版:** The package name is `vue-leafbook`. It has not been published to npm. Build and install a local tarball using the steps below.
 
 ## Quick start / 使い方
 
 ```vue
 <script setup lang="ts">
-import { FlipbookViewer } from '@your-org/vue-flipbook'
-import '@your-org/vue-flipbook/style.css'
+import { FlipbookViewer } from 'vue-leafbook'
+import 'vue-leafbook/style.css'
 </script>
 
 <template>
@@ -44,26 +44,26 @@ The Vue playground also serves as the introduction site. Development-only contro
 
 ```sh
 pnpm build
-pnpm --filter @your-org/vue-flipbook pack --pack-destination ../../.artifacts
+pnpm --filter vue-leafbook pack --pack-destination ../../.artifacts
 # In your own Vue or Nuxt project:
-pnpm add /absolute/path/to/your-org-vue-flipbook-0.1.0.tgz
+pnpm add /absolute/path/to/vue-leafbook-0.1.0.tgz
 ```
 
-The `@your-org` name is intentionally reserved for renaming before an authorized npm release. See [release instructions](docs/releasing.md).
+If you used the earlier development tarball, remove `@your-org/vue-flipbook` from your app and update all imports, CSS paths and Vite/Nuxt integration paths to `vue-leafbook`. The `FlipbookViewer` component and its API are unchanged. Previously generated SVG indexes are updated automatically on the next dev/build run. See [release instructions](docs/releasing.md) before an authorized npm release.
 
 ## Nuxt 4
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
-  css: ['@your-org/vue-flipbook/style.css'],
+  css: ['vue-leafbook/style.css'],
 })
 ```
 
 ```vue
 <!-- app/app.vue -->
 <script setup lang="ts">
-import { FlipbookViewer } from '@your-org/vue-flipbook'
+import { FlipbookViewer } from 'vue-leafbook'
 </script>
 <template>
   <FlipbookViewer src="/pamphlet.pdf" />
