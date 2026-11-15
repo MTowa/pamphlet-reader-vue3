@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
 import path from 'node:path'
+import { checkFullscreen, turnPageByDrag } from './browser-helpers'
 
 const vueURL = 'http://127.0.0.1:4173/demo/?testing=true'
 const nuxtURL = 'http://127.0.0.1:4174/nuxt-demo/'
@@ -19,43 +20,17 @@ async function jump(page: Page, target: number) {
   await page.getByRole('button', { name: '指定ページへ移動' }).click()
 }
 
-test('turns pages by dragging or a real touch swipe', async ({ page, isMobile }) => {
+test('turns pages by dragging or touch events', async ({ page, isMobile, browserName }) => {
   await page.goto(vueURL)
   await ready(page)
-  await page.locator('.vfb__book').scrollIntoViewIfNeeded()
-  const bounds = await page.locator('[data-page="1"]').boundingBox()
-  expect(bounds).not.toBeNull()
-  const startX = bounds!.x + bounds!.width - 10
-  // A completed drag passes the book's spine; stopping on its right returns the page.
-  const endX = Math.max(1, bounds!.x - (isMobile ? 15 : bounds!.width * 0.55))
-  const y = bounds!.y + bounds!.height * 0.5
-  if (isMobile) {
-    const cdp = await page.context().newCDPSession(page)
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x: startX, y }],
-    })
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: endX, y }] })
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
-    await cdp.detach()
-  } else {
-    await page.mouse.move(startX, y)
-    await page.mouse.down()
-    await page.mouse.move(endX, y, { steps: 15 })
-    await page.mouse.up()
-  }
+  await turnPageByDrag(page, isMobile, browserName)
   await expect(number(page)).toHaveValue('2')
 })
 
-test('enters and exits fullscreen from its toolbar', async ({ page }) => {
+test('uses fullscreen when supported and hides the button otherwise', async ({ page }) => {
   await page.goto(vueURL)
   await ready(page)
-  await page.getByRole('button', { name: '全画面表示', exact: true }).click()
-  await expect
-    .poll(() => page.evaluate(() => document.fullscreenElement?.classList.contains('vfb')))
-    .toBe(true)
-  await page.getByRole('button', { name: '全画面表示を終了', exact: true }).click()
-  await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true)
+  await checkFullscreen(page)
   await ready(page)
 })
 
@@ -83,7 +58,7 @@ test('ignores a stale PDF response after src changes during loading', async ({ p
 test('loads real PDF in a worker and flips with correct cover numbering', async ({
   page,
   isMobile,
-}) => {
+}, testInfo) => {
   const errors: string[] = []
   const workers: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
@@ -118,7 +93,7 @@ test('loads real PDF in a worker and flips with correct cover numbering', async 
   await expect(number(page)).toHaveValue(isMobile ? '5' : '4')
   expect(errors).toEqual([])
   await page.screenshot({
-    path: 'test-results/' + (isMobile ? 'mobile' : 'desktop') + '-viewer.png',
+    path: testInfo.outputPath('viewer.png'),
     fullPage: true,
   })
 })

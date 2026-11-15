@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { copyFile, mkdir, readdir, readFile, realpath } from 'node:fs/promises'
+import { copyFile, mkdir, readdir, readFile, realpath, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import {
   checkBundledPackages,
@@ -85,5 +85,13 @@ for (const entry of manifest.licenses) {
 }
 await copyFile(path.join(root, 'third-party/manifest.json'), path.join(output, 'manifest.json'))
 await copyFile(path.join(root, 'LICENSE'), path.join(library, 'LICENSE'))
-await copyFile(path.join(root, 'README.md'), path.join(library, 'README.md'))
+// The npm artifact does not contain repository docs. Keep its README links
+// usable from node_modules and package registries, not just the repository root.
+const packageInfo = JSON.parse(await readFile(path.join(library, 'package.json'), 'utf8'))
+const repository = packageInfo.repository.url.replace(/^git\+/, '').replace(/\.git$/, '')
+const readme = (await readFile(path.join(root, 'README.md'), 'utf8')).replace(
+  /\]\(((?:docs\/[^)]+|CONTRIBUTING\.md|CHANGELOG\.md))\)/g,
+  (_, target) => `](${repository}/blob/main/${target})`,
+)
+await writeFile(path.join(library, 'README.md'), readme)
 console.log(`Verified and bundled ${manifest.licenses.length} upstream license/notice texts.`)

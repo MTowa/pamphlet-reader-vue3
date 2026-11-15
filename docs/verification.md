@@ -13,15 +13,15 @@ pnpm format:check
 pnpm test
 pnpm test:tooling
 pnpm test:licenses
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium firefox webkit
 pnpm test:package
 ```
 
 The package verifier builds a tgz, checks its exported files, installs it into new standalone directories outside the workspace, typechecks/builds both consumers, then runs Playwright. There is no source alias, workspace symlink, manual worker configuration, copied worker asset or CDN in these consumers. The Vue app is served under /demo/ and the Nuxt app under /nuxt-demo/. Generated SVG manifests are excluded when copying the apps, so each consumer must create its own index. After browser checks, both development servers are started and tested for SVG addition/deletion (6 → 7 → 6 pages) through their HTTP-served index.
 
-The run writes per-command logs, the tarball's SHA-256 and consumer directory paths to .artifacts/. These machine-local results are ignored by Git. CI uploads logs and browser traces for inspection.
+The run checks that the installed README links to repository documentation rather than missing files inside the tarball. The run writes per-command logs, the tarball's SHA-256 and consumer directory paths to .artifacts/. These machine-local results are ignored by Git. CI uploads logs and browser traces for inspection.
 
-CI pins the hosted Ubuntu 24.04 image and uses its preinstalled Chromium runtime libraries. It downloads only Playwright's headless Chromium shell, avoiding an unnecessary apt update for supplementary fonts. All browser tests still run; a missing runtime dependency fails the check normally.
+CI pins the hosted Ubuntu 24.04 image and installs Chromium's headless shell, Firefox, WebKit and their system libraries with `playwright install --with-deps --only-shell chromium firefox webkit`, following the [Playwright CI setup](https://playwright.dev/docs/ci-intro). A missing browser/runtime dependency fails the check normally.
 
 ## Coverage
 
@@ -32,24 +32,24 @@ CI pins the hosted Ubuntu 24.04 image and uses its preinstalled Chromium runtime
 | Missing PDF                               | Visible error, retry, then recovery by File input.                                                           |
 | Previous/next and jump                    | Browser clicks controls, checks one-based values and displayed canvases.                                     |
 | Cover numbering                           | Unit cases for both cover modes and final pages; browser checks cover1 → spread2–3.                          |
-| Desktop spread / mobile single            | Chromium desktop and Pixel7 emulation; visible-page labels and mode checked.                                 |
+| Desktop spread / mobile single            | Chromium/Firefox/WebKit desktop and Pixel 7/iPhone 13 emulation; visible pages and mode checked.             |
 | Responsive container                      | Browser changes width while on page40 and checks mode/page preservation.                                     |
 | URL and File replacement                  | Browser loads six- and three-page PDFs; local File restores six-page PDF.                                    |
 | Stale request during replacement          | A delayed original PDF response is released after a new source is ready.                                     |
 | Keyboard and toolbar settings             | Unit test disables keyboard; browser checks Home/End, input scope and hiding toolbar.                        |
-| Drag and touch                            | Mouse drag crosses the spine; Chromium receives native touch events for a swipe.                             |
-| Fullscreen                                | User-action button enters and exits the Fullscreen API.                                                      |
+| Drag and touch                            | Desktop mouse drag, native touch injection in mobile Chromium, and dispatched TouchEvents in mobile WebKit.  |
+| Fullscreen                                | When supported, the toolbar enters/exits fullscreen; otherwise its button must be absent.                    |
 | Long PDF                                  | 80-page fixture; jump to40; at most six canvases and two million pixels each.                                |
 | Cleanup                                   | After unmount, tracked native workers and requestAnimationFrame callbacks both reach zero; remount succeeds. |
 | SSR / Nuxt                                | HTTP response contains the loading placeholder; direct component hydration has no error.                     |
 | PDF support assets                        | Unit test decodes Japanese CMap, TrueType font and OpenJPEG WASM data without network fetch.                 |
 | Types and package integration             | Library and both consumers pass typechecking; production apps use the installed tarball.                     |
 
-The unit suite has36 cases across page mapping, render scheduling, component API, SSR, lifecycle, SVG index validation, localization and support assets. The tooling suite adds6 cases for natural page order, index updates, migration from the former package name, file preservation, path boundaries and development watching. The browser suite passes51 cases across desktop and mobile Chromium, including the introduction site; one additional mobile performance measurement is deliberately skipped because the descriptive comparison is run once on desktop.
+The unit suite has 36 cases across page mapping, render scheduling, component API, SSR, lifecycle, SVG index validation, localization and support assets. The tooling suite adds 6 cases for natural page order, index updates, migration from the former package name, file preservation, path boundaries and development watching. The browser suite has 130 cases across five projects, including the introduction site. The descriptive performance comparison runs once in desktop Chromium; its four duplicate cases are deliberately skipped. The remaining 126 cases cover behavior rather than performance thresholds.
 
-The installed package is `vue-leafbook`, packed as `vue-leafbook-0.1.0.tgz`. Both consumers import the renamed package, its CSS and its Vite/Nuxt tooling through the exported paths. A tooling regression check starts with an index generated by `@your-org/vue-flipbook`, migrates it to the new generator name and checks subsequent updates; the separate file-preservation check rejects unrelated generators.
+The installed package is `vue-leafbook`, packed as `vue-leafbook-<version>.tgz`. The exact version and archive hash are recorded in `.artifacts/package-verification.json`. Both consumers import the renamed package, its CSS and its Vite/Nuxt tooling through the exported paths. A tooling regression check starts with an index generated by `@your-org/vue-flipbook`, migrates it to the new generator name and checks subsequent updates; the separate file-preservation check rejects unrelated generators.
 
-SVG browser checks cover first-load rendering in both installed Vue/Nuxt production consumers, zero PDF-runtime requests and zero Workers on a fresh SVG route, navigation, drag/touch, fullscreen, resizing, PDF ↔ SVG switching with worker release, missing index/first image/later image and retry, stale index responses, and unmount during image loading. Screenshots of desktop and mobile SVG layouts are saved with the browser artifacts. SVG retains the same one-based page API and nearby-page cache; a unit case verifies that resizing reuses resolution-independent images.
+SVG browser checks cover first-load rendering in both installed Vue/Nuxt production consumers, zero PDF-runtime requests and zero Workers on a fresh SVG route, navigation, drag/touch, fullscreen, resizing, PDF ↔ SVG switching with worker release, missing index/first image/later image and retry, stale index responses, and unmount during image loading. Screenshots of desktop and mobile SVG layouts are saved in separate per-test/per-project directories with the browser artifacts. SVG retains the same one-based page API and nearby-page cache; a unit case verifies that resizing reuses resolution-independent images.
 
 ## Example PDF/SVG comparison
 
@@ -66,7 +66,7 @@ License verification adds four regression cases (`pnpm test:licenses`, after `pn
 
 ## Scope and known limitations
 
-- Mobile tests emulate a Pixel7 in desktop Chromium. They do not prove behavior on a physical Android/iPhone device. Safari and Firefox are not part of this run.
+- Mobile tests emulate a Pixel 7 in Chromium and an iPhone 13 in WebKit. Desktop Firefox and WebKit are also tested. Playwright WebKit is not branded Safari; its mobile swipe test dispatches untrusted TouchEvents rather than reproducing physical iOS gesture arbitration. Physical iPhone/Android checks remain pending in the [release checklist](release-checklist.md). See [Playwright browser support](https://playwright.dev/docs/browsers#webkit) and [touch-event testing](https://playwright.dev/docs/touch-events).
 - Sample PDFs are original6-,3-,80- and1-page documents. CMap/font/codec bytes are unit tested, but there is no exhaustive PDF-format compatibility corpus or real-device memory benchmark.
 - Password input, PDF text selection/search, annotations, forms, zoom controls, right-to-left binding and text-layer screen-reader reading are outside this initial API. Password-protected documents report a load error.
 - Fullscreen is hidden when unsupported. A remote URL must allow browser access/CORS.

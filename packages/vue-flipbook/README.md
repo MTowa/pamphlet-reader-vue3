@@ -6,6 +6,8 @@ Vue 3向けのパンフレットビューアーです。PDFまたは事前に用
 
 **Development preview / 開発版:** The package name is `vue-leafbook`. It has not been published to npm. Build and install a local tarball using the steps below.
 
+初めて導入する場合は、先に[ビルド済みパッケージのインストール](#install-the-built-package--ビルド済みパッケージを使う)を行ってください。まだ `pnpm add vue-leafbook` でnpmから取得する段階ではありません。
+
 ## Quick start / 使い方
 
 ```vue
@@ -19,9 +21,11 @@ import 'vue-leafbook/style.css'
 </template>
 ```
 
+上の例では、導入先アプリの `public/pamphlet.pdf` にPDFを置きます。`src` はパソコン内の絶対パスではなく、ブラウザーからアクセスするURLです。
+
 No PDF-to-image conversion, CDN, manual worker configuration, backend, Tailwind, or Nuxt dependency is required. CSS is an explicit import for predictable SSR and bundler behavior. Public page numbers start at **1**. Set `locale="en"` for English controls, messages and accessible labels (default: Japanese). Language changes preserve the open document and current page.
 
-For pre-generated SVG pages, register the public folder once with the Vite plugin or Nuxt module, then use `<FlipbookViewer svg-dir="/pamphlet/" />`. Page order is generated automatically from filenames; SVG-only viewers do not load PDF.js or a PDF worker. See [SVGフォルダーの設定と使い方](docs/svg.md).
+For pre-generated SVG pages, register the public folder once with the Vite plugin or Nuxt module, then use `<FlipbookViewer svg-dir="/pamphlet/" />`. Page order is generated automatically from filenames; SVG-only viewers do not load PDF.js or a PDF worker. See [SVGフォルダーの設定と使い方](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/svg.md).
 
 ## Develop / ローカルで試す
 
@@ -38,7 +42,7 @@ pnpm dev:nuxt
 
 Original, redistributable PDF and SVG fixtures are included. Regenerate them with `pnpm fixtures`. The playground's 「SVGフォルダー」 button selects the SVG sample; `?format=svg` opens it directly.
 
-The Vue playground also serves as the introduction site. Development-only controls are available with `?testing=true`. See [紹介サイトの編集・GitHub Pages公開](docs/site.md).
+The Vue playground also serves as the introduction site. Development-only controls are available with `?testing=true`. See [紹介サイトの編集・GitHub Pages公開](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/site.md).
 
 ## Install the built package / ビルド済みパッケージを使う
 
@@ -49,7 +53,7 @@ pnpm --filter vue-leafbook pack --pack-destination ../../.artifacts
 pnpm add /absolute/path/to/vue-leafbook-0.1.0.tgz
 ```
 
-If you used the earlier development tarball, remove `@your-org/vue-flipbook` from your app and update all imports, CSS paths and Vite/Nuxt integration paths to `vue-leafbook`. The `FlipbookViewer` component and its API are unchanged. Previously generated SVG indexes are updated automatically on the next dev/build run. See [release instructions](docs/releasing.md) before an authorized npm release.
+If you used the earlier development tarball, remove `@your-org/vue-flipbook` from your app and update all imports, CSS paths and Vite/Nuxt integration paths to `vue-leafbook`. The `FlipbookViewer` component and its API are unchanged. Previously generated SVG indexes are updated automatically on the next dev/build run. See [release instructions](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/releasing.md) before an authorized npm release.
 
 ## Nuxt 4
 
@@ -86,12 +90,12 @@ The component renders a loading placeholder on the server and creates its PDF wo
 
 ## Documentation
 
-- [API / Props・Events・公開メソッド](docs/api.md)
-- [SVGの命名規則・ページ順・フォルダーの設定](docs/svg.md)
-- [Architecture, worker distribution, lifecycle](docs/architecture.md)
-- [Verification and limitations / 検証と制限](docs/verification.md)
-- [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
+- [API / Props・Events・公開メソッド](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/api.md)
+- [SVGの命名規則・ページ順・フォルダーの設定](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/svg.md)
+- [Architecture, worker distribution, lifecycle](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/architecture.md)
+- [Verification and limitations / 検証と制限](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/verification.md)
+- [Contributing](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/CONTRIBUTING.md)
+- [Changelog](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/CHANGELOG.md)
 
 ## Checks
 
@@ -103,7 +107,7 @@ pnpm format:check
 pnpm test
 pnpm test:tooling
 pnpm test:licenses
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium firefox webkit
 pnpm test:package
 ```
 

@@ -6,6 +6,8 @@ Vue 3向けのパンフレットビューアーです。PDFまたは事前に用
 
 **Development preview / 開発版:** The package name is `vue-leafbook`. It has not been published to npm. Build and install a local tarball using the steps below.
 
+初めて導入する場合は、先に[ビルド済みパッケージのインストール](#install-the-built-package--ビルド済みパッケージを使う)を行ってください。まだ `pnpm add vue-leafbook` でnpmから取得する段階ではありません。
+
 ## Quick start / 使い方
 
 ```vue
@@ -18,6 +20,8 @@ import 'vue-leafbook/style.css'
   <FlipbookViewer src="/pamphlet.pdf" />
 </template>
 ```
+
+上の例では、導入先アプリの `public/pamphlet.pdf` にPDFを置きます。`src` はパソコン内の絶対パスではなく、ブラウザーからアクセスするURLです。
 
 No PDF-to-image conversion, CDN, manual worker configuration, backend, Tailwind, or Nuxt dependency is required. CSS is an explicit import for predictable SSR and bundler behavior. Public page numbers start at **1**. Set `locale="en"` for English controls, messages and accessible labels (default: Japanese). Language changes preserve the open document and current page.
 
@@ -103,7 +107,7 @@ pnpm format:check
 pnpm test
 pnpm test:tooling
 pnpm test:licenses
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium firefox webkit
 pnpm test:package
 ```
 

@@ -29,9 +29,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm test
-      # Hosted Ubuntu includes the Chromium runtime libraries. Avoid an apt
-      # update for supplementary fonts; these tests only need headless Chromium.
-      - run: pnpm exec playwright install chromium --only-shell
+      # Firefox and WebKit require additional system libraries on Ubuntu.
+      - run: pnpm exec playwright install --with-deps --only-shell chromium firefox webkit
       - run: pnpm test:package
       - uses: actions/upload-artifact@v4
         if: always()
