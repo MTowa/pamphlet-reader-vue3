@@ -7,7 +7,7 @@ export const locale = ref<SiteLocale>(
 )
 const messages = {
   ja: {
-    description: 'Vue 3向けのPDF・SVGビューアー。',
+    description: 'Vue 3向け、PDF・SVG対応のページめくりビューアー。',
     navigation: 'ページ内ナビゲーション',
     github: 'GitHubでソースコードを見る',
     language: 'Switch to English',
@@ -20,6 +20,24 @@ const messages = {
     copyFailed: '自動コピーできませんでした。コードを選択してコピーしてください。',
     pause: '背景の動きを止める',
     resume: '背景の動きを再開',
+    featuresHeading: '特徴',
+    features: [
+      {
+        title: 'Workerの手動設定不要',
+        description:
+          'PDFの表示に必要なWorkerを自動で読み込みます。別ファイルの配置やCDNの設定は不要です。',
+      },
+      {
+        title: 'SVGはフォルダーで指定',
+        description:
+          '用意したSVGのフォルダーを一度登録すると、ファイル名からページ順を自動で作成します。',
+      },
+      {
+        title: 'Vue・Nuxtで利用可能',
+        description:
+          'Vue + Vite、Nuxt 4で動作確認済み。SSRでも使え、ブラウザーで資料の読み込みを開始します。',
+      },
+    ],
     usageLines: [
       'コンポーネントとCSSを読み込み、資料の場所を指定します。',
       'PDFのURL、または用意したSVGのフォルダーを指定します。',
@@ -27,11 +45,34 @@ const messages = {
     ],
     installCode: 'インストールコマンド',
     exampleCode: '使用コード',
+    pdfLocation: 'この例では、アプリの public/pamphlet.pdf にPDFを置きます。',
     installNote: 'Vue 3.5以降のプロジェクトで実行してください。',
     packageSteps: 'npmで見る',
     author: '作者：',
     gettingStarted: '導入手順',
     svgDocs: 'SVGの設定・命名規則',
+    nuxtDocs: 'Nuxtでの使い方',
+    apiDocs: 'API・設定一覧',
+    supportHeading: '対応範囲',
+    supportItems: [
+      {
+        title: '動作環境',
+        description:
+          'Vue 3.5以降が必要です。現行のデスクトップ・モバイルブラウザー向けで、画面幅に合わせて見開き・単ページ表示を切り替えます。ブラウザーごとの検証範囲は下のリンクをご確認ください。',
+      },
+      {
+        title: 'SVGの準備',
+        description:
+          '公開前に1ページ1ファイルのSVGを用意し、001.svg、002.svgのように並べて公開フォルダーに置きます。ViteプラグインまたはNuxtモジュールへの登録が必要です。PDFからSVGへ変換する機能は含みません。',
+      },
+      {
+        title: '未対応の機能',
+        description:
+          '本文検索、目次の自動生成・表示、文字選択、注釈、パスワード入力は未対応です。ページ番号を指定して移動するAPIは利用できます。本文の読み上げが必要な場合は、HTML版などを併設してください。',
+      },
+    ],
+    browserSupport: 'ブラウザーの検証範囲・制限',
+    reportIssue: '不具合を報告',
     demoHeading: 'デモ',
     demoHint: 'ページをドラッグ、またはスワイプしてめくれます。',
     thirdParty: '第三者ライセンス',
@@ -71,7 +112,7 @@ const messages = {
     states: { preparing: '準備中', loading: '読み込み中', ready: '読み込み完了', error: 'エラー' },
   },
   en: {
-    description: 'A PDF and SVG viewer for Vue 3.',
+    description: 'A page-turning PDF and SVG viewer for Vue 3.',
     navigation: 'Page navigation',
     github: 'View source on GitHub',
     language: '日本語に切り替える',
@@ -84,6 +125,24 @@ const messages = {
     copyFailed: 'Automatic copying failed. Select the code and copy it manually.',
     pause: 'Pause background motion',
     resume: 'Resume background motion',
+    featuresHeading: 'Features',
+    features: [
+      {
+        title: 'No manual worker setup',
+        description:
+          'The PDF worker loads automatically. No separate worker file or CDN configuration is needed.',
+      },
+      {
+        title: 'Load SVG pages from a folder',
+        description:
+          'Register a folder of prepared SVGs once. Page order is generated automatically from file names.',
+      },
+      {
+        title: 'Works with Vue and Nuxt',
+        description:
+          'Verified with Vue + Vite and Nuxt 4. Supports SSR and starts loading documents in the browser.',
+      },
+    ],
     usageLines: [
       'Import the component and its CSS, then point it to your document.',
       'Provide a PDF URL or a folder of prepared SVG pages.',
@@ -91,11 +150,34 @@ const messages = {
     ],
     installCode: 'Install command',
     exampleCode: 'Usage example',
+    pdfLocation: 'For this example, place your PDF at public/pamphlet.pdf in your app.',
     installNote: 'Run this command in a Vue 3.5+ project.',
     packageSteps: 'View on npm',
     author: 'By',
     gettingStarted: 'Get started',
     svgDocs: 'SVG setup & file naming',
+    nuxtDocs: 'Using Nuxt',
+    apiDocs: 'API & options',
+    supportHeading: 'Compatibility & limits',
+    supportItems: [
+      {
+        title: 'Requirements',
+        description:
+          'Requires Vue 3.5+. Designed for current desktop and mobile browsers, with spreads or single pages to fit the available width. See the link below for browser test coverage.',
+      },
+      {
+        title: 'Preparing SVG pages',
+        description:
+          'Prepare one SVG per page before deployment, name them 001.svg, 002.svg, and place them in a public folder. Register it with the Vite plugin or Nuxt module. PDF-to-SVG conversion is not included.',
+      },
+      {
+        title: 'Not yet supported',
+        description:
+          'Full-text search, automatic table of contents or a contents panel, text selection, annotations and password input are not supported. An API for jumping to a page number is available. Provide an HTML alternative when screen-reader access to document text is needed.',
+      },
+    ],
+    browserSupport: 'Browser test coverage & limitations',
+    reportIssue: 'Report an issue',
     demoHeading: 'Demo',
     demoHint: 'Drag or swipe a page to turn it.',
     thirdParty: 'Third-party licenses',

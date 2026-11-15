@@ -116,6 +116,7 @@ h2 {
   margin-top: 30px;
   font-size: 22px;
   line-height: 1.5;
+  text-wrap: balance;
   padding-inline: 20px;
   color: #4c6250;
   animation: enter 800ms 100ms both;
@@ -216,7 +217,33 @@ h2 {
   font-size: 13px;
 }
 
-.usage {
+.features {
+  padding-bottom: 64px;
+  border-bottom: 1px solid #d8ded0;
+}
+.feature-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px;
+  margin: 28px 0 0;
+}
+.feature-list dt,
+.support-list dt {
+  font-size: 17px;
+  font-weight: 550;
+  line-height: 1.7;
+  color: #294c3a;
+}
+.feature-list dd,
+.support-list dd {
+  margin: 12px 0 0;
+  font-size: 15px;
+  line-height: 1.9;
+  color: #50614f;
+  overflow-wrap: anywhere;
+}
+.usage,
+.support {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);
   gap: 48px;
@@ -224,9 +251,28 @@ h2 {
   padding-bottom: 86px;
   border-bottom: 1px solid #d8ded0;
 }
+.support {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.support-body {
+  min-width: 0;
+}
+.support-list {
+  margin: 0;
+}
+.support-list > div + div {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #d8ded0;
+}
 .usage-body {
   font-size: 17px;
   line-height: 2;
+}
+.usage-note {
+  font-size: 14px;
+  overflow-wrap: anywhere;
 }
 .documentation-links {
   display: flex;
@@ -542,7 +588,9 @@ details[open] > summary {
 .site[data-motion-paused='true'] .hero-backdrop * {
   animation-play-state: paused;
 }
-.usage h2 {
+.usage h2,
+.features h2,
+.support h2 {
   font-size: 28px;
   font-weight: 500;
   letter-spacing: -0.03em;
@@ -610,6 +658,7 @@ details[open] > summary {
     opacity: 0.7;
   }
   .usage,
+  .support,
   .section-intro {
     grid-template-columns: 180px minmax(0, 1fr);
     gap: 32px;
@@ -625,8 +674,12 @@ details[open] > summary {
   .hero-backdrop {
     height: 880px;
   }
-  .usage {
+  .usage,
+  .support {
     padding-top: 64px;
+  }
+  .usage,
+  .features {
     padding-bottom: 64px;
   }
   .demo-section {
@@ -727,18 +780,31 @@ details[open] > summary {
     background-size: 40px 40px;
   }
   .usage,
+  .support,
   .section-intro {
     display: block;
   }
   .usage h2,
+  .features h2,
+  .support h2,
   .section-intro h2 {
     font-size: 23px;
   }
-  .usage {
+  .usage,
+  .support {
     padding-top: 48px;
+  }
+  .usage,
+  .features {
     padding-bottom: 48px;
   }
+  .feature-list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+    margin-top: 24px;
+  }
   .usage-body,
+  .support-body,
   .section-intro p {
     margin-top: 20px;
     font-size: 15px;
