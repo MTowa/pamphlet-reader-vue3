@@ -27,9 +27,8 @@ const messages = {
     ],
     installCode: 'インストールコマンド',
     exampleCode: '使用コード',
-    installNote:
-      '現在はnpm公開前の開発版です。作成した.tgzを導入先のプロジェクトに置いて実行してください。',
-    packageSteps: 'パッケージの作成手順',
+    installNote: 'Vue 3.5以降のプロジェクトで実行してください。',
+    packageSteps: 'npmで見る',
     author: '作者：',
     gettingStarted: '導入手順',
     svgDocs: 'SVGの設定・命名規則',
@@ -92,9 +91,8 @@ const messages = {
     ],
     installCode: 'Install command',
     exampleCode: 'Usage example',
-    installNote:
-      'This development preview is not yet on npm. Build the .tgz, place it in your app’s folder, then run this command.',
-    packageSteps: 'Build the package',
+    installNote: 'Run this command in a Vue 3.5+ project.',
+    packageSteps: 'View on npm',
     author: 'By',
     gettingStarted: 'Get started',
     svgDocs: 'SVG setup & file naming',

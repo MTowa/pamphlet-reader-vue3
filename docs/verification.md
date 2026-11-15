@@ -66,11 +66,11 @@ License verification adds four regression cases (`pnpm test:licenses`, after `pn
 
 ## Scope and known limitations
 
-- Mobile tests emulate a Pixel 7 in Chromium and an iPhone 13 in WebKit. Desktop Firefox and WebKit are also tested. Playwright WebKit is not branded Safari; its mobile swipe test dispatches untrusted TouchEvents rather than reproducing physical iOS gesture arbitration. Physical iPhone/Android checks remain pending in the [release checklist](release-checklist.md). See [Playwright browser support](https://playwright.dev/docs/browsers#webkit) and [touch-event testing](https://playwright.dev/docs/touch-events).
+- Mobile tests emulate a Pixel 7 in Chromium and an iPhone 13 in WebKit. Desktop Firefox and WebKit are also tested. Playwright WebKit is not branded Safari; its mobile swipe test dispatches untrusted TouchEvents rather than reproducing physical iOS gesture arbitration. A user reported completing a physical-device check on 2026-11-15; device, OS, browser and per-item results were not supplied. This is recorded separately from the device-specific checks in the [release checklist](release-checklist.md). See [Playwright browser support](https://playwright.dev/docs/browsers#webkit) and [touch-event testing](https://playwright.dev/docs/touch-events).
 - Sample PDFs are original6-,3-,80- and1-page documents. CMap/font/codec bytes are unit tested, but there is no exhaustive PDF-format compatibility corpus or real-device memory benchmark.
 - Password input, PDF text selection/search, annotations, forms, zoom controls, right-to-left binding and text-layer screen-reader reading are outside this initial API. Password-protected documents report a load error.
 - Fullscreen is hidden when unsupported. A remote URL must allow browser access/CORS.
 - The canvas cache is bounded; the document byte buffer, shared PDF resources and one lightweight DOM node per page still consume memory.
 - Automatic inline worker delivery requires blob workers under CSP and produces a comparatively large lazy PDF runtime chunk. Vite may warn about a chunk above500kB. This is a size warning, not a failed build.
 - The package is ESM-only; a CommonJS require() API is not supplied.
-- The package name is vue-leafbook. It has not been published to npm. No npm release or Git tag is created by these checks.
+- The package name is vue-leafbook. No npm release or Git tag is created by these verification commands; publishing is a separately authorized action.

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.0 — Unreleased
+## 0.1.0 — 2026-11-15
 
 - Chromium, Firefox and WebKit coverage, including mobile emulation, and a physical-device release checklist.
 - Working documentation links in the packaged README and a version-aware introduction-site install command.
@@ -19,4 +19,4 @@
 - Unit tests, production tarball consumer browser tests and GitHub Actions CI.
 - Complete source/package license inventory, QuickJS notices, StPageFlip patch attribution, and checks for missing or altered third-party texts in installed tarballs.
 
-This version has not been released to npm and has no release tag.
+Published as [vue-leafbook@0.1.0](https://www.npmjs.com/package/vue-leafbook/v/0.1.0) from [v0.1.0](https://github.com/MTowa/pamphlet-reader-vue3/tree/v0.1.0).

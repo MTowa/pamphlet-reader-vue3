@@ -11,7 +11,7 @@ PlaywrightのWebKitはSafariそのものではありません。iPhone相当の�
 
 ## 実機で確認する項目
 
-**実機確認は未完了です。** [紹介サイト](https://mtowa.github.io/pamphlet-reader-vue3/)で、iPhoneのSafariとAndroidのChromeを対象に、以下を確認してください。修正が入った場合は、その修正を含むサイトで確認します。
+2026-11-15に、利用者から[紹介サイト](https://mtowa.github.io/pamphlet-reader-vue3/)の実機確認を行ったとの報告を受けています。端末名・OS・ブラウザーと各項目の詳細は未記録のため、下の端末別一覧は未確認のままです。iPhoneのSafariとAndroidのChromeで、以下を確認する際に記録してください。修正が入った場合は、その修正を含むサイトで確認します。
 
 - [ ] PDFとSVGの両方で、表紙から最後のページまで前後にめくれる。
 - [ ] 左右のスワイプとサイトの縦スクロールを使い分けられ、操作が止まらない。
