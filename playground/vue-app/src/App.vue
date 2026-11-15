@@ -60,11 +60,21 @@ const motionPaused = ref(false)
           <span :class="motionPaused ? 'play-icon' : 'pause-icon'" aria-hidden="true" />
         </button>
       </section>
+      <section class="features content-width" aria-labelledby="features-heading">
+        <h2 id="features-heading">{{ ui.featuresHeading }}</h2>
+        <dl class="feature-list">
+          <div v-for="feature in ui.features" :key="feature.title">
+            <dt>{{ feature.title }}</dt>
+            <dd>{{ feature.description }}</dd>
+          </div>
+        </dl>
+      </section>
       <section id="usage" class="usage content-width" aria-labelledby="usage-heading">
         <h2 id="usage-heading">{{ ui.usage }}</h2>
         <div class="usage-body">
           <p v-for="line in ui.usageLines" :key="line">{{ line }}</p>
           <CopyCode :code="snippet" :label="ui.exampleCode" appearance="plain" />
+          <p class="usage-note">{{ ui.pdfLocation }}</p>
           <div class="documentation-links">
             <a :href="repo + '#quick-start--使い方'"
               >{{ ui.gettingStarted }} <span aria-hidden="true">↗</span></a
@@ -72,6 +82,7 @@ const motionPaused = ref(false)
             <a :href="repo + '/blob/main/docs/svg.md'">
               {{ ui.svgDocs }} <span aria-hidden="true">↗</span>
             </a>
+            <a :href="repo + '#nuxt-4'"> {{ ui.nuxtDocs }} <span aria-hidden="true">↗</span> </a>
           </div>
         </div>
       </section>
@@ -82,8 +93,28 @@ const motionPaused = ref(false)
         </div>
         <ReaderDemo />
       </section>
+      <section id="support" class="support content-width" aria-labelledby="support-heading">
+        <h2 id="support-heading">{{ ui.supportHeading }}</h2>
+        <div class="support-body">
+          <dl class="support-list">
+            <div v-for="item in ui.supportItems" :key="item.title">
+              <dt>{{ item.title }}</dt>
+              <dd>{{ item.description }}</dd>
+            </div>
+          </dl>
+          <div class="documentation-links">
+            <a :href="repo + '/blob/main/docs/verification.md#scope-and-known-limitations'">
+              {{ ui.browserSupport }} <span aria-hidden="true">↗</span>
+            </a>
+            <a :href="repo + '/blob/main/docs/api.md'">
+              {{ ui.apiDocs }} <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
     <footer class="site-footer content-width">
+      <a :href="repo + '/issues'">{{ ui.reportIssue }}</a>
       <a :href="repo + '/blob/main/LICENSE'">MIT License</a>
       <a :href="repo + '/tree/main/third-party'">{{ ui.thirdParty }}</a>
       <a class="author-link" href="https://github.com/MTowa"

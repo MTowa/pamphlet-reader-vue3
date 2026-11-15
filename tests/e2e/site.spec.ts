@@ -36,7 +36,7 @@ test('pauses the background motion and respects reduced-motion preferences', asy
   await expect(page.getByRole('heading', { name: 'デモ', exact: true })).toBeInViewport()
 })
 
-test('copies install and usage code and links to the repository and author', async ({
+test('copies install and usage code and links to documentation, issues and author', async ({
   page,
   context,
   browserName,
@@ -69,6 +69,17 @@ test('copies install and usage code and links to the repository and author', asy
     'href',
     'https://github.com/MTowa',
   )
+  for (const [name, path] of [
+    ['Nuxtでの使い方', '#nuxt-4'],
+    ['API・設定一覧', '/blob/main/docs/api.md'],
+    ['ブラウザーの検証範囲・制限', '/blob/main/docs/verification.md#scope-and-known-limitations'],
+    ['不具合を報告', '/issues'],
+  ]) {
+    await expect(page.getByRole('link', { name })).toHaveAttribute(
+      'href',
+      'https://github.com/MTowa/pamphlet-reader-vue3' + path,
+    )
+  }
 })
 
 test('selects code for manual copying when clipboard permission is denied', async ({ page }) => {
@@ -133,6 +144,13 @@ test('keeps copy buttons inside their frames in both languages at narrow widths'
       const header = (await page.locator('.site-header').boundingBox())!
       const github = (await page.locator('.github-link').boundingBox())!
       expect(github.x + github.width).toBeLessThanOrEqual(header.x + header.width + 1)
+      for (const item of await page
+        .locator('.feature-list > div, .support-list > div, .documentation-links a, .site-footer a')
+        .all()) {
+        const bounds = (await item.boundingBox())!
+        expect(bounds.x).toBeGreaterThanOrEqual(0)
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(width + 1)
+      }
     }
     await page.screenshot({
       path: testInfo.outputPath('introduction-' + lang + '.png'),
@@ -153,6 +171,16 @@ test('opens in English and switches language without reloading the document', as
   })
   await page.goto(siteURL + '?lang=en')
   await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(page.getByRole('region', { name: 'Features', exact: true })).toContainText(
+    'No manual worker setup',
+  )
+  await expect(page.getByRole('region', { name: 'Compatibility & limits' })).toContainText(
+    'Not yet supported',
+  )
+  await expect(page.getByRole('link', { name: 'Report an issue' })).toHaveAttribute(
+    'href',
+    'https://github.com/MTowa/pamphlet-reader-vue3/issues',
+  )
   await expect(
     page.getByRole('region', { name: 'PDF pamphlet viewer', exact: true }),
   ).toHaveAttribute('aria-busy', 'false')
@@ -165,6 +193,14 @@ test('opens in English and switches language without reloading the document', as
   const before = pdfRequests
   await page.getByRole('button', { name: '日本語に切り替える' }).click()
   await expect(page.locator('html')).toHaveAttribute('lang', 'ja')
+  await expect(page.getByRole('region', { name: '特徴', exact: true })).toContainText(
+    'Workerの手動設定不要',
+  )
+  await expect(page.getByRole('region', { name: '対応範囲', exact: true })).toContainText(
+    '未対応の機能',
+  )
+  await expect(page.getByRole('link', { name: 'Report an issue' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: '不具合を報告' })).toBeVisible()
   await expect(page.getByRole('spinbutton', { name: '移動先のページ番号' })).toHaveValue('2')
   expect(pdfRequests).toBe(before)
   await page.getByRole('button', { name: 'Switch to English' }).click()
