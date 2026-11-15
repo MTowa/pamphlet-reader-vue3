@@ -3,11 +3,12 @@ import { computed, ref } from 'vue'
 import ReaderDemo from './components/ReaderDemo.vue'
 import CopyCode from './components/CopyCode.vue'
 import githubMark from './assets/github-mark.svg'
+import packageInfo from 'vue-leafbook/package.json'
 import { locale, siteName, ui, toggleLocale, usageCode } from './i18n'
 
 const repo = 'https://github.com/MTowa/pamphlet-reader-vue3'
 const snippet = computed(() => usageCode(locale.value))
-const installCommand = 'pnpm add ./vue-leafbook-0.1.0.tgz'
+const installCommand = `pnpm add ./${packageInfo.name}-${packageInfo.version}.tgz`
 const motionPaused = ref(false)
 </script>
 

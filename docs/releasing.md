@@ -4,6 +4,8 @@ No automated publishing workflow is included. Publishing and Git tags require ex
 
 Before the first npm release:
 
+Complete the [release checklist](release-checklist.md), recording automated results separately from physical-device checks. A prepared package version is not evidence that it has been published.
+
 1. The chosen unscoped package name is `vue-leafbook`. Recheck its availability and the authorized npm account immediately before publishing; the name has not been reserved by this repository.
 2. Set the approved version and changelog entry. Update the README and site's tarball filename if the version changes. Keep the pre-release notice until publication succeeds.
 3. Run `pnpm install --frozen-lockfile` and `pnpm check`. Inspect the generated `vue-leafbook-<version>.tgz`, its package name/exports, `THIRD_PARTY_NOTICES.md` and `dist/licenses/`. Check `third-party/manifest.json` against the actual bundled versions/assets. Review any inventory drift before updating its hashes; both installed Vue/Nuxt consumers must pass the license-byte verification.

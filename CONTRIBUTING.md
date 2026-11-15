@@ -20,11 +20,13 @@ pnpm typecheck
 pnpm lint
 pnpm format:check
 pnpm test
-pnpm exec playwright install chromium
+pnpm exec playwright install chromium firefox webkit
 pnpm test:package
 ```
 
 The package test installs an actual tarball into temporary standalone Vue and Nuxt projects. It uses the network to install dependencies and leaves logs/report metadata in .artifacts/. Browser traces and screenshots are stored under test-results/ and playwright-report/.
+
+The browser suite runs desktop Chromium, Firefox and WebKit, plus Pixel 7 Chromium and iPhone 13 WebKit emulation. On Linux, install system libraries with `pnpm exec playwright install --with-deps --only-shell chromium firefox webkit`. Mobile emulation does not replace physical-device checks; see [公開前の確認](docs/release-checklist.md).
 
 When changing PDF or flip lifecycle behavior, include a regression test for replacement/unmount. Preserve one-based page numbering. Keep rendering separate from the animation engine. The bundled StPageFlip patch is documented in docs/architecture.md; update both the patched source and its shipped bundles when changing it.
 

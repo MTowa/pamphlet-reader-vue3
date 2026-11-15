@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import type { Page } from '@playwright/test'
+import { checkFullscreen, turnPageByDrag } from './browser-helpers'
 
 const vueURL = 'http://127.0.0.1:4173/demo/?testing=true'
 const nuxtURL = 'http://127.0.0.1:4174/nuxt-demo/'
@@ -37,7 +38,7 @@ for (const [app, url] of [
     page,
     request,
     isMobile,
-  }) => {
+  }, testInfo) => {
     const seen = track(page)
     if (app === 'Nuxt') {
       const response = await request.get(url + (url.includes('?') ? '&' : '?') + 'format=svg')
@@ -70,41 +71,23 @@ for (const [app, url] of [
     expect(seen.errors).toEqual([])
     if (app === 'Vue')
       await page.screenshot({
-        path: 'test-results/' + (isMobile ? 'mobile' : 'desktop') + '-svg.png',
+        path: testInfo.outputPath('svg.png'),
         fullPage: true,
       })
   })
 }
 
-test('SVG supports drag/touch, fullscreen and responsive resizing', async ({ page, isMobile }) => {
+test('SVG supports drag/touch, fullscreen and responsive resizing', async ({
+  page,
+  isMobile,
+  browserName,
+}) => {
   await page.goto(vueURL + '&format=svg')
   await ready(page)
-  await page.locator('.vfb__book').scrollIntoViewIfNeeded()
-  const box = (await page.locator('[data-page="1"]').boundingBox())!
-  const start = box.x + box.width - 10,
-    end = Math.max(1, box.x - (isMobile ? 15 : box.width * 0.55)),
-    y = box.y + box.height * 0.5
-  if (isMobile) {
-    const cdp = await page.context().newCDPSession(page)
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [{ x: start, y }],
-    })
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: end, y }] })
-    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
-    await cdp.detach()
-  } else {
-    await page.mouse.move(start, y)
-    await page.mouse.down()
-    await page.mouse.move(end, y, { steps: 15 })
-    await page.mouse.up()
-  }
+  await turnPageByDrag(page, isMobile, browserName)
   await expect(number(page)).toHaveValue('2')
   await page.waitForTimeout(650)
-  await page.getByRole('button', { name: '全画面表示', exact: true }).click()
-  await expect.poll(() => page.evaluate(() => !!document.fullscreenElement)).toBe(true)
-  await page.getByRole('button', { name: '全画面表示を終了', exact: true }).click()
-  await expect.poll(() => page.evaluate(() => !!document.fullscreenElement)).toBe(false)
+  await checkFullscreen(page)
   if (!isMobile) {
     await page.setViewportSize({ width: 390, height: 844 })
     await expect(viewer(page)).toHaveAttribute('data-mode', 'single')
@@ -198,9 +181,11 @@ test('unmounts while the first SVG image is still loading', async ({ page }) => 
 
 test('records cold PDF and SVG transfer and first-ready timings for the same sample', async ({
   browser,
-  isMobile,
 }, testInfo) => {
-  test.skip(isMobile, 'One descriptive desktop measurement; not a performance threshold.')
+  test.skip(
+    testInfo.project.name !== 'desktop-chromium',
+    'One descriptive Chromium desktop measurement; not a performance threshold.',
+  )
   const samples = []
   for (const format of ['pdf', 'svg']) {
     const context = await browser.newContext({ viewport: { width: 1440, height: 1100 } })

@@ -123,6 +123,9 @@ for (const app of ['vue-app', 'nuxt-app']) {
   const installed = await realpath(path.join(destination, 'node_modules', libManifest.name))
   if (installed.startsWith(root))
     throw new Error('Consumer resolved workspace source instead of installed tarball')
+  const readme = await readFile(path.join(installed, 'README.md'), 'utf8')
+  if (/\]\((?:docs\/|CONTRIBUTING\.md|CHANGELOG\.md)/.test(readme))
+    throw new Error('Packaged README links to documentation missing from the tarball')
   await verifyPackagedLicenses(installed)
   console.log('Verified installed license texts: ' + app)
   if (app === 'vue-app') {

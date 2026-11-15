@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test'
+import { copiedText, prepareClipboard } from './browser-helpers'
+import packageInfo from '../../packages/vue-flipbook/package.json' with { type: 'json' }
 
 const siteURL = 'http://127.0.0.1:4173/demo/'
-const installCommand = 'pnpm add ./vue-leafbook-0.1.0.tgz'
+const installCommand = `pnpm add ./${packageInfo.name}-${packageInfo.version}.tgz`
 
 test('pauses the background motion and respects reduced-motion preferences', async ({ page }) => {
   await page.goto(siteURL)
@@ -37,18 +39,18 @@ test('pauses the background motion and respects reduced-motion preferences', asy
 test('copies install and usage code and links to the repository and author', async ({
   page,
   context,
+  browserName,
 }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await prepareClipboard(page, context, browserName)
   await page.goto(siteURL)
   const install = page.getByRole('group', { name: 'インストールコマンド' })
   await install.getByRole('button', { name: 'コピー', exact: true }).click()
   await expect(install.getByRole('status')).toHaveText('コピーしました')
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(installCommand)
+  expect(await copiedText(page, browserName)).toBe(installCommand)
   const usage = page.getByRole('group', { name: '使用コード' })
   await usage.getByRole('button', { name: 'コピー', exact: true }).click()
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-    await usage.locator('code').textContent(),
-  )
+  await expect(usage.getByRole('status')).toHaveText('コピーしました')
+  expect(await copiedText(page, browserName)).toBe(await usage.locator('code').textContent())
   await expect(page.getByText('検証用コントロール', { exact: true })).toHaveCount(0)
   await page.getByText('表示設定', { exact: true }).click()
   await page.getByLabel('操作バーを表示').uncheck()
@@ -81,8 +83,8 @@ test('selects code for manual copying when clipboard permission is denied', asyn
 test('keeps copy buttons inside their frames in both languages at narrow widths', async ({
   page,
   isMobile,
-}) => {
-  const widths = isMobile ? [320, 390] : [768, 1440]
+}, testInfo) => {
+  const widths = isMobile ? [320, 390] : [320, 390, 768, 1440]
   for (const lang of ['ja', 'en']) {
     await page.goto(siteURL + '?lang=' + lang)
     await expect(page).toHaveTitle('vue-leafbook')
@@ -112,7 +114,8 @@ test('keeps copy buttons inside their frames in both languages at narrow widths'
         const frame = (await panel.boundingBox())!
         const button = (await panel.getByRole('button').boundingBox())!
         const code = panel.locator('pre')
-        expect(button.height).toBeGreaterThanOrEqual(44)
+        // Transformed bounds in Firefox can round 44px down by a fraction of a pixel.
+        expect(button.height).toBeGreaterThanOrEqual(44 - 0.01)
         expect(button.x).toBeGreaterThanOrEqual(frame.x)
         expect(button.y).toBeGreaterThanOrEqual(frame.y)
         expect(button.x + button.width).toBeLessThanOrEqual(frame.x + frame.width + 1)
@@ -128,7 +131,7 @@ test('keeps copy buttons inside their frames in both languages at narrow widths'
       expect(github.x + github.width).toBeLessThanOrEqual(header.x + header.width + 1)
     }
     await page.screenshot({
-      path: 'test-results/' + (isMobile ? 'mobile' : 'desktop') + '-introduction-' + lang + '.png',
+      path: testInfo.outputPath('introduction-' + lang + '.png'),
       fullPage: true,
     })
   }
@@ -137,8 +140,9 @@ test('keeps copy buttons inside their frames in both languages at narrow widths'
 test('opens in English and switches language without reloading the document', async ({
   page,
   context,
+  browserName,
 }) => {
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  await prepareClipboard(page, context, browserName)
   let pdfRequests = 0
   page.on('request', (request) => {
     if (request.url().endsWith('/sample.pdf')) pdfRequests++
@@ -152,7 +156,8 @@ test('opens in English and switches language without reloading the document', as
   await expect(page.getByRole('spinbutton', { name: 'Page number' })).toHaveValue('2')
   const usage = page.getByRole('group', { name: 'Usage example' })
   await usage.getByRole('button', { name: 'Copy', exact: true }).click()
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toContain('locale="en"')
+  await expect(usage.getByRole('status')).toHaveText('Copied')
+  expect(await copiedText(page, browserName)).toContain('locale="en"')
   const before = pdfRequests
   await page.getByRole('button', { name: '日本語に切り替える' }).click()
   await expect(page.locator('html')).toHaveAttribute('lang', 'ja')
