@@ -8,7 +8,7 @@ import { locale, siteName, ui, toggleLocale, usageCode } from './i18n'
 
 const repo = 'https://github.com/MTowa/pamphlet-reader-vue3'
 const snippet = computed(() => usageCode(locale.value))
-const installCommand = `pnpm add ./${packageInfo.name}-${packageInfo.version}.tgz`
+const installCommand = `pnpm add ${packageInfo.name}`
 const motionPaused = ref(false)
 </script>
 
@@ -45,7 +45,7 @@ const motionPaused = ref(false)
         <CopyCode :code="installCommand" :label="ui.installCode" />
         <p class="install-note">
           {{ ui.installNote }}
-          <a :href="repo + '#install-the-built-package--ビルド済みパッケージを使う'"
+          <a :href="'https://www.npmjs.com/package/' + packageInfo.name"
             >{{ ui.packageSteps }} <span aria-hidden="true">↗</span></a
           >
         </p>

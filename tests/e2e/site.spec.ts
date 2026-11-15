@@ -3,7 +3,7 @@ import { copiedText, prepareClipboard } from './browser-helpers'
 import packageInfo from '../../packages/vue-flipbook/package.json' with { type: 'json' }
 
 const siteURL = 'http://127.0.0.1:4173/demo/'
-const installCommand = `pnpm add ./${packageInfo.name}-${packageInfo.version}.tgz`
+const installCommand = `pnpm add ${packageInfo.name}`
 
 test('pauses the background motion and respects reduced-motion preferences', async ({ page }) => {
   await page.goto(siteURL)
@@ -47,6 +47,10 @@ test('copies install and usage code and links to the repository and author', asy
   await install.getByRole('button', { name: 'コピー', exact: true }).click()
   await expect(install.getByRole('status')).toHaveText('コピーしました')
   expect(await copiedText(page, browserName)).toBe(installCommand)
+  await expect(page.getByRole('link', { name: 'npmで見る' })).toHaveAttribute(
+    'href',
+    `https://www.npmjs.com/package/${packageInfo.name}`,
+  )
   const usage = page.getByRole('group', { name: '使用コード' })
   await usage.getByRole('button', { name: 'コピー', exact: true }).click()
   await expect(usage.getByRole('status')).toHaveText('コピーしました')

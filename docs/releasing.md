@@ -2,15 +2,15 @@
 
 No automated publishing workflow is included. Publishing and Git tags require explicit repository-owner authorization.
 
-Before the first npm release:
+Before each npm release:
 
 Complete the [release checklist](release-checklist.md), recording automated results separately from physical-device checks. A prepared package version is not evidence that it has been published.
 
-1. The chosen unscoped package name is `vue-leafbook`. Recheck its availability and the authorized npm account immediately before publishing; the name has not been reserved by this repository.
-2. Set the approved version and changelog entry. Update the README and site's tarball filename if the version changes. Keep the pre-release notice until publication succeeds.
+1. Use the unscoped package name `vue-leafbook`. Confirm the authorized npm account, package ownership and the target version's availability immediately before publishing.
+2. Set the approved version and changelog entry. Update version-specific local tarball examples if the version changes. Announce a release only after publication is verified.
 3. Run `pnpm install --frozen-lockfile` and `pnpm check`. Inspect the generated `vue-leafbook-<version>.tgz`, its package name/exports, `THIRD_PARTY_NOTICES.md` and `dist/licenses/`. Check `third-party/manifest.json` against the actual bundled versions/assets. Review any inventory drift before updating its hashes; both installed Vue/Nuxt consumers must pass the license-byte verification.
 4. Push a work branch and submit a PR. Wait for owner approval before merging.
-5. Perform npm publication or tag creation only when explicitly requested. Once publication succeeds, update the site's install command and the documentation to match the released package.
+5. Perform npm publication or tag creation only when explicitly requested. Confirm that the published version can be retrieved and its tarball matches the verified file; a successful CLI exit alone is not evidence of availability. Once publication succeeds, update the installation documentation and changelog to match the released package.
 
 The package source remains in `packages/vue-flipbook/`; this internal directory is separate from the public npm name. Existing development consumers must replace `@your-org/vue-flipbook` with `vue-leafbook` in their dependency manifest and import/CSS/Vite/Nuxt paths. The component name, one-based page API and `flipbook.json` filename are unchanged. SVG indexes marked with the old generator name are recognized and regenerated with `vue-leafbook`; unrelated user files are still protected.
 

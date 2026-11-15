@@ -4,9 +4,17 @@ A reusable Vue 3 PDF and SVG flipbook. Supply a PDF URL/File or a directory of p
 
 Vue 3向けのパンフレットビューアーです。PDFまたは事前に用意したSVGのフォルダーを指定して、ページめくり・見開き・スマートフォンでの単ページ表示を利用できます。
 
-**Development preview / 開発版:** The package name is `vue-leafbook`. It has not been published to npm. Build and install a local tarball using the steps below.
+## Install / インストール
 
-初めて導入する場合は、先に[ビルド済みパッケージのインストール](#install-the-built-package--ビルド済みパッケージを使う)を行ってください。まだ `pnpm add vue-leafbook` でnpmから取得する段階ではありません。
+Vue 3.5以降のプロジェクトで実行してください。 / Run in a Vue 3.5+ project.
+
+```sh
+pnpm add vue-leafbook
+# npmを使う場合 / With npm:
+npm install vue-leafbook
+```
+
+[npm package](https://www.npmjs.com/package/vue-leafbook) · [紹介サイト / Demo](https://mtowa.github.io/pamphlet-reader-vue3/)
 
 ## Quick start / 使い方
 
@@ -45,6 +53,8 @@ Original, redistributable PDF and SVG fixtures are included. Regenerate them wit
 The Vue playground also serves as the introduction site. Development-only controls are available with `?testing=true`. See [紹介サイトの編集・GitHub Pages公開](https://github.com/MTowa/pamphlet-reader-vue3/blob/main/docs/site.md).
 
 ## Install the built package / ビルド済みパッケージを使う
+
+リポジトリで変更した内容を別のアプリで試す場合は、ローカルの配布ファイルを作成してインストールできます。
 
 ```sh
 pnpm build
