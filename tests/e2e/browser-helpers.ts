@@ -59,12 +59,21 @@ export async function checkFullscreen(page: Page) {
     await expect(enter).toHaveCount(0)
     return
   }
+  const bookSize = () =>
+    page.locator('.vfb__book').evaluate((book) => ({
+      width: book.clientWidth,
+      height: book.clientHeight,
+    }))
+  const initialSize = await bookSize()
   await enter.click()
   await expect
     .poll(() => page.evaluate(() => document.fullscreenElement?.classList.contains('vfb')))
     .toBe(true)
   await page.getByRole('button', { name: '全画面表示を終了', exact: true }).click()
   await expect.poll(() => page.evaluate(() => document.fullscreenElement === null)).toBe(true)
+  // fullscreenchange precedes the debounced book layout. Wait for restoration
+  // before a subsequent viewport resize can overlap that pending layout.
+  await expect.poll(bookSize).toEqual(initialSize)
 }
 
 export async function prepareClipboard(page: Page, context: BrowserContext, browserName: string) {
