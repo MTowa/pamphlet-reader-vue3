@@ -91,6 +91,10 @@ test('SVG supports drag/touch, fullscreen and responsive resizing', async ({
   if (!isMobile) {
     await page.setViewportSize({ width: 390, height: 844 })
     await expect(viewer(page)).toHaveAttribute('data-mode', 'single')
+    const book = viewer(page).locator('.vfb__book')
+    await book.scrollIntoViewIfNeeded()
+    const bounds = (await book.boundingBox())!
+    await page.mouse.move(bounds.x + bounds.width - 10, bounds.y + 10)
     await page.setViewportSize({ width: 1440, height: 1100 })
     await expect(viewer(page)).toHaveAttribute('data-mode', 'spread')
   }

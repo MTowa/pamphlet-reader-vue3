@@ -23,6 +23,11 @@ interface Callbacks {
 
 type ResolvedProps = Required<Omit<FlipbookViewerProps, 'src' | 'svgDir'>> &
   Pick<FlipbookViewerProps, 'src' | 'svgDir'>
+
+const fitZoom = 100
+const maxZoom = 300
+const zoomStep = 25
+
 export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
   const root = ref<HTMLElement>()
   const stage = ref<HTMLElement>()
@@ -31,6 +36,11 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
   const pageCount = ref(0)
   const currentPage = ref(1)
   const mode = ref<FlipbookViewMode>('spread')
+  const zoom = ref(fitZoom)
+  const zoomed = computed(() => zoom.value > fitZoom)
+  const canZoom = computed(() => !loading.value && !failure.value)
+  const canZoomIn = computed(() => canZoom.value && zoom.value < maxZoom)
+  const canZoomOut = computed(() => canZoom.value && zoomed.value)
   const fullscreen = ref(false)
   const fullscreenSupported = ref(false)
   const shownPages = computed(() =>
@@ -54,6 +64,7 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
   let pageWidth = 1,
     pageHeight = 1
   let layoutKey = ''
+  let appliedZoom = fitZoom
   let turning = false
   let pendingLayout = false
   let readySent = false
@@ -92,6 +103,7 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
     containers = []
     stage.value?.replaceChildren()
     layoutKey = ''
+    appliedZoom = fitZoom
     turning = false
     pendingLayout = false
     await previous?.destroy()
@@ -107,38 +119,50 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
     })
   }
 
+  function scrollToPage(viewport: HTMLElement) {
+    // In a spread, the cover occupies the right half when it has a facing page to turn to.
+    const rightCover = mode.value === 'spread' && props.showCover && currentPage.value === 1
+    viewport.scrollLeft = rightCover && pageCount.value > 1 ? pageWidth : 0
+    viewport.scrollTop = 0
+  }
+
   function layout() {
-    if (!mounted || !stage.value || !createEngine || !pageCount.value || !queue) return
+    const viewport = stage.value
+    if (!mounted || !viewport || !createEngine || !pageCount.value || !queue) return
     if (turning) {
       pendingLayout = true
       return
     }
-    const bounds = stage.value.getBoundingClientRect()
+    const bounds = viewport.getBoundingClientRect()
     if (bounds.width < 16 || bounds.height < 16) return
     const nextMode = bounds.width < props.mobileBreakpoint ? 'single' : 'spread'
-    const width = Math.max(
+    const pagesAcross = nextMode === 'single' ? 1 : 2
+    const fitWidth = Math.max(
       1,
-      Math.floor(
-        Math.min(
-          (bounds.width - 24) / (nextMode === 'single' ? 1 : 2),
-          (bounds.height - 24) * aspectRatio,
-        ),
-      ),
+      Math.floor(Math.min((bounds.width - 24) / pagesAcross, (bounds.height - 24) * aspectRatio)),
     )
-    const height = Math.max(1, Math.floor(width / aspectRatio))
-    const key = `${width}:${height}:${nextMode}:${props.showCover}:${props.flipDuration}`
+    const fitHeight = Math.max(1, Math.floor(fitWidth / aspectRatio))
+    const key = `${fitWidth}:${fitHeight}:${nextMode}:${props.showCover}:${props.flipDuration}:${zoom.value}`
     if (key === layoutKey) return
+    const previousPage = currentPage.value
+    const startPage = visiblePages(previousPage, pageCount.value, nextMode, props.showCover)[0]!
+    const keepScroll =
+      appliedZoom > fitZoom && mode.value === nextMode && previousPage === startPage
+    const horizontalOverflow = viewport.scrollWidth - viewport.clientWidth
+    const scrollX = viewport.scrollLeft / Math.max(1, horizontalOverflow)
+    const scrollY = viewport.scrollTop / Math.max(1, viewport.scrollHeight - viewport.clientHeight)
     layoutKey = key
+    appliedZoom = zoom.value
     engine?.destroy()
     engine = undefined
-    pageWidth = width
-    pageHeight = height
+    pageWidth = Math.round((fitWidth * appliedZoom) / fitZoom)
+    pageHeight = Math.round((fitHeight * appliedZoom) / fitZoom)
     mode.value = nextMode
     // The engine owns this entire subtree; Vue never reconciles its moving pages.
     const host = document.createElement('div')
     host.className = 'vfb__book'
-    host.style.width = `${width * (nextMode === 'single' ? 1 : 2)}px`
-    host.style.height = `${height}px`
+    host.style.width = `${pageWidth * pagesAcross}px`
+    host.style.height = `${pageHeight}px`
     containers = Array.from({ length: pageCount.value }, (_, index) => {
       const page = document.createElement('div')
       page.className = 'vfb__page'
@@ -158,20 +182,21 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
       return page
     })
     host.append(...containers)
-    stage.value.replaceChildren(host)
-    const previousPage = currentPage.value
-    const startPage = visiblePages(previousPage, pageCount.value, nextMode, props.showCover)[0]!
+    viewport.replaceChildren(host)
     engine = createEngine({
       host,
       pages: containers,
       pageWidth,
       pageHeight,
       mode: nextMode,
+      pointerNavigation: appliedZoom === fitZoom,
       showCover: props.showCover,
       startPage,
       duration: props.flipDuration,
       onPageChange(page) {
+        const previousPage = currentPage.value
         currentPage.value = visiblePages(page, pageCount.value, mode.value, props.showCover)[0]!
+        if (appliedZoom > fitZoom && previousPage !== currentPage.value) scrollToPage(viewport)
         for (let i = 0; i < containers.length; i++)
           containers[i]!.setAttribute('aria-hidden', String(!shownPages.value.includes(i + 1)))
         renderNearby()
@@ -189,6 +214,14 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
       },
     })
     currentPage.value = startPage
+    if (appliedZoom > fitZoom) {
+      scrollToPage(viewport)
+      if (keepScroll) {
+        if (horizontalOverflow > 0)
+          viewport.scrollLeft = scrollX * (viewport.scrollWidth - viewport.clientWidth)
+        viewport.scrollTop = scrollY * (viewport.scrollHeight - viewport.clientHeight)
+      }
+    }
     queue.reattach()
     renderNearby()
     checkReady()
@@ -204,6 +237,7 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
     const ownEpoch = ++epoch
     failure.value = undefined
     pageCount.value = 0
+    zoom.value = fitZoom
     readySent = false
     progress(true)
     try {
@@ -280,6 +314,12 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
   function goToPage(page: number) {
     if (!loading.value && !turning) engine?.goTo(clampPage(page, pageCount.value))
   }
+  function changeZoom(steps: number) {
+    zoom.value = Math.min(maxZoom, Math.max(fitZoom, zoom.value + steps * zoomStep))
+  }
+  function resetZoom() {
+    zoom.value = fitZoom
+  }
   function onKeydown(event: KeyboardEvent) {
     if (
       !props.keyboardNavigation ||
@@ -290,7 +330,12 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
     )
       return
     const target = event.target as HTMLElement
-    if (target.isContentEditable || target.closest('input, textarea, select, button, a')) return
+    if (
+      target === stage.value ||
+      target.isContentEditable ||
+      target.closest('input, textarea, select, button, a')
+    )
+      return
     const actions: Record<string, () => void> = {
       ArrowRight: nextPage,
       ArrowLeft: prevPage,
@@ -343,6 +388,7 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
     (page) => goToPage(page),
   )
   watch(() => [props.showCover, props.mobileBreakpoint, props.flipDuration], scheduleLayout)
+  watch(zoom, scheduleLayout)
   watch(
     () => props.locale,
     () => {
@@ -372,6 +418,12 @@ export function useFlipbook(props: ResolvedProps, callbacks: Callbacks) {
     pageCount,
     currentPage,
     mode,
+    zoom,
+    zoomed,
+    canZoomIn,
+    canZoomOut,
+    changeZoom,
+    resetZoom,
     shownPages,
     canNext,
     canPrevious,

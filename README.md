@@ -92,6 +92,7 @@ The component renders a loading placeholder on the server and creates its PDF wo
 - SVG directory input with numeric filename ordering, automatically generated static index, and development file watching for Vite/Nuxt.
 - Animated dragging, touch swipes, previous/next, page jump, optional single cover.
 - Container-based responsive single-page and spread modes.
+- PDF and SVG zoom from 100% (fit to viewer) to 300%, with scrolling at higher zoom levels.
 - Scoped keyboard navigation, labeled controls, fullscreen when supported.
 - Six-page canvas window, two-million-pixel canvas limit, cancellable sequential rendering.
 - Typed props, events, exposed methods; replaceable flip-engine adapter.
