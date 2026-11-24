@@ -13,15 +13,17 @@ export function createFlipEngine(options: FlipEngineOptions): FlipEngine {
     flippingTime: Math.max(100, options.duration),
     maxShadowOpacity: 0.22,
     mobileScrollSupport: false,
+    useMouseEvents: options.pointerNavigation,
     swipeDistance: 24,
     showPageCorners: true,
     clickEventForward: false,
   })
   let destroyed = false
   engine.on('flip', (event: { data: number }) => options.onPageChange(Number(event.data) + 1))
-  engine.on('changeState', (event: { data: string }) =>
-    options.onStateChange(event.data !== 'read'),
-  )
+  engine.on('changeState', (event: { data: string }) => {
+    // A corner preview can stay active while the pointer is still during a resize.
+    options.onStateChange(event.data === 'user_fold' || event.data === 'flipping')
+  })
   engine.loadFromHTML(options.pages)
 
   return {

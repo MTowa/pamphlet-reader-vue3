@@ -26,6 +26,12 @@ const {
   pageCount,
   currentPage,
   mode,
+  zoom,
+  zoomed,
+  canZoomIn,
+  canZoomOut,
+  changeZoom,
+  resetZoom,
   shownPages,
   canNext,
   canPrevious,
@@ -73,7 +79,15 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
     @keydown="onKeydown"
   >
     <div class="vfb__viewport">
-      <div ref="stage" class="vfb__stage" :aria-hidden="loading || !!failure" />
+      <div
+        ref="stage"
+        class="vfb__stage"
+        :class="{ 'vfb__stage--zoomed': zoomed }"
+        :tabindex="zoomed && !failure ? 0 : undefined"
+        :role="zoomed ? 'region' : undefined"
+        :aria-label="zoomed ? text.zoomedPage : undefined"
+        :aria-hidden="loading || !!failure"
+      />
       <div v-if="failure" class="vfb__message" role="alert">
         <span class="vfb__message-icon" aria-hidden="true">!</span>
         <p>{{ failureMessage }}</p>
@@ -85,59 +99,92 @@ defineExpose<FlipbookViewerExpose>({ nextPage, prevPage, goToPage, reload })
       </div>
     </div>
     <div v-if="showToolbar" class="vfb__toolbar" role="group" :aria-label="text.controls">
-      <button
-        type="button"
-        class="vfb__button"
-        :aria-label="text.previous"
-        :title="text.previous"
-        :disabled="!canPrevious || !!failure"
-        @click="prevPage"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
-      </button>
-      <form class="vfb__jump" @submit.prevent="submitJump">
-        <input
-          v-model="jumpPage"
-          type="number"
-          min="1"
-          :max="pageCount || 1"
-          :disabled="loading || !!failure"
-          :aria-label="text.pageInput"
-        />
-        <span class="vfb__total">/ {{ pageCount || '—' }}</span>
+      <div class="vfb__control-group">
         <button
-          class="vfb__jump-button"
-          type="submit"
-          :disabled="loading || !!failure"
-          :aria-label="text.jump"
+          type="button"
+          class="vfb__button"
+          :aria-label="text.previous"
+          :title="text.previous"
+          :disabled="!canPrevious || !!failure"
+          @click="prevPage"
         >
-          {{ text.go }}
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
         </button>
-      </form>
-      <button
-        type="button"
-        class="vfb__button"
-        :aria-label="text.next"
-        :title="text.next"
-        :disabled="!canNext || !!failure"
-        @click="nextPage"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
-      </button>
-      <span class="vfb__divider" aria-hidden="true" />
-      <span class="vfb__mode">{{ mode === 'single' ? text.single : text.spread }}</span>
-      <button
-        v-if="showFullscreen && fullscreenSupported"
-        class="vfb__button"
-        type="button"
-        :aria-label="fullscreen ? text.exitFullscreen : text.fullscreen"
-        :title="fullscreen ? text.exitFullscreen : text.fullscreen"
-        @click="toggleFullscreen"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
-        </svg>
-      </button>
+        <form class="vfb__jump" @submit.prevent="submitJump">
+          <input
+            v-model="jumpPage"
+            type="number"
+            min="1"
+            :max="pageCount || 1"
+            :disabled="loading || !!failure"
+            :aria-label="text.pageInput"
+          />
+          <span class="vfb__total">/ {{ pageCount || '—' }}</span>
+          <button
+            class="vfb__jump-button"
+            type="submit"
+            :disabled="loading || !!failure"
+            :aria-label="text.jump"
+          >
+            {{ text.go }}
+          </button>
+        </form>
+        <button
+          type="button"
+          class="vfb__button"
+          :aria-label="text.next"
+          :title="text.next"
+          :disabled="!canNext || !!failure"
+          @click="nextPage"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
+        </button>
+      </div>
+      <div class="vfb__control-group">
+        <button
+          class="vfb__button"
+          type="button"
+          :aria-label="text.zoomOut"
+          :title="text.zoomOut"
+          :disabled="!canZoomOut"
+          @click="changeZoom(-1)"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+        </button>
+        <button
+          class="vfb__button vfb__zoom-reset"
+          type="button"
+          :aria-label="text.resetZoom(zoom)"
+          :title="text.fitPage"
+          :disabled="loading || !!failure"
+          @click="resetZoom"
+        >
+          {{ zoom }}%
+        </button>
+        <button
+          class="vfb__button"
+          type="button"
+          :aria-label="text.zoomIn"
+          :title="text.zoomIn"
+          :disabled="!canZoomIn"
+          @click="changeZoom(1)"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14" /></svg>
+        </button>
+        <button
+          v-if="showFullscreen && fullscreenSupported"
+          class="vfb__button"
+          type="button"
+          :aria-label="fullscreen ? text.exitFullscreen : text.fullscreen"
+          :title="fullscreen ? text.exitFullscreen : text.fullscreen"
+          @click="toggleFullscreen"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5" />
+          </svg>
+        </button>
+      </div>
+      <span class="vfb__sr-only" role="status">{{ text.zoomLevel(zoom) }}</span>
     </div>
     <span class="vfb__sr-only" aria-live="polite" aria-atomic="true">{{
       pageCount && !loading ? text.range(range, pageCount) : ''

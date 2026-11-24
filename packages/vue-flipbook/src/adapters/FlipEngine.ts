@@ -14,6 +14,7 @@ export interface FlipEngineOptions {
   pageWidth: number
   pageHeight: number
   mode: FlipbookViewMode
+  pointerNavigation: boolean
   showCover: boolean
   startPage: number
   duration: number

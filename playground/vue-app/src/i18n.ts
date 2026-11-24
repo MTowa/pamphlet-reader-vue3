@@ -41,7 +41,6 @@ const messages = {
     usageLines: [
       'コンポーネントとCSSを読み込み、資料の場所を指定します。',
       'PDFのURL、または用意したSVGのフォルダーを指定します。',
-      '画面の幅に合わせて、見開き・単ページ表示を切り替えます。',
     ],
     installCode: 'インストールコマンド',
     exampleCode: '使用コード',
@@ -58,7 +57,7 @@ const messages = {
       {
         title: '動作環境',
         description:
-          'Vue 3.5以降が必要です。現行のデスクトップ・モバイルブラウザー向けで、画面幅に合わせて見開き・単ページ表示を切り替えます。ブラウザーごとの検証範囲は下のリンクをご確認ください。',
+          'Vue 3.5以降が必要です。現行のデスクトップ・モバイルブラウザー向けです。ブラウザーごとの検証範囲は下のリンクをご確認ください。',
       },
       {
         title: 'SVGの準備',
@@ -74,7 +73,8 @@ const messages = {
     browserSupport: 'ブラウザーの検証範囲・制限',
     reportIssue: '不具合を報告',
     demoHeading: 'デモ',
-    demoHint: 'ページをドラッグ、またはスワイプしてめくれます。',
+    demoHint:
+      'ドラッグやスワイプでページをめくれます。＋・−で拡大縮小し、倍率を押すと元の大きさに戻ります。',
     thirdParty: '第三者ライセンス',
     sources: 'デモの資料',
     samplePdf: 'サンプルPDF',
@@ -146,7 +146,6 @@ const messages = {
     usageLines: [
       'Import the component and its CSS, then point it to your document.',
       'Provide a PDF URL or a folder of prepared SVG pages.',
-      'The viewer switches between spreads and single pages to fit its width.',
     ],
     installCode: 'Install command',
     exampleCode: 'Usage example',
@@ -163,7 +162,7 @@ const messages = {
       {
         title: 'Requirements',
         description:
-          'Requires Vue 3.5+. Designed for current desktop and mobile browsers, with spreads or single pages to fit the available width. See the link below for browser test coverage.',
+          'Requires Vue 3.5+. Designed for current desktop and mobile browsers. See the link below for browser test coverage.',
       },
       {
         title: 'Preparing SVG pages',
@@ -179,7 +178,8 @@ const messages = {
     browserSupport: 'Browser test coverage & limitations',
     reportIssue: 'Report an issue',
     demoHeading: 'Demo',
-    demoHint: 'Drag or swipe a page to turn it.',
+    demoHint:
+      'Drag or swipe to turn a page. Use + and − to zoom, and select the percentage to fit the pages to the viewer.',
     thirdParty: 'Third-party licenses',
     sources: 'Demo documents',
     samplePdf: 'Sample PDF',

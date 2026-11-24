@@ -22,6 +22,7 @@ describe('StPageFlip lifecycle patch', () => {
       pageWidth: 300,
       pageHeight: 400,
       mode: 'spread',
+      pointerNavigation: true,
       showCover: true,
       startPage: 1,
       duration: 300,
